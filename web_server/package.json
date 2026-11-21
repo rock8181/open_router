@@ -1,0 +1,14 @@
+{
+  "name": "openrouter-doc-viewer",
+  "version": "1.0.0",
+  "description": "OpenRouter study documents web viewer",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "marked": "^12.0.2"
+  }
+}

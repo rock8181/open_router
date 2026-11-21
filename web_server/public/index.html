@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenRouter Study Document Viewer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>OpenRouter</h2>
+        <p>Study Document Viewer</p>
+      </div>
+      <nav class="nav">
+        <h3>폴더</h3>
+        <button class="nav-item active" data-root="open_router">open_router/doc</button>
+        <button class="nav-item" data-root="study">study/01_skill_claude</button>
+      </nav>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="문서 검색...">
+        <button id="searchBtn">검색</button>
+      </div>
+      <div class="status" id="status">연결 중...</div>
+    </aside>
+
+    <main class="main">
+      <header class="header">
+        <h1 id="pageTitle">문서 목록</h1>
+        <div class="breadcrumb" id="breadcrumb"></div>
+      </header>
+
+      <div class="toolbar">
+        <button id="refreshBtn">새로고침</button>
+        <span class="divider"></span>
+        <span id="docCount">0개 문서</span>
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <div class="viewer-overlay" id="viewerOverlay">
+        <div class="viewer-panel">
+          <div class="viewer-header">
+            <h2 id="viewerTitle"></h2>
+            <div class="viewer-actions">
+              <button id="copyBtn">복사</button>
+              <button id="closeViewerBtn">닫기</button>
+            </div>
+          </div>
+          <div class="viewer-content" id="viewerContent"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
