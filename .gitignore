@@ -2,6 +2,7 @@ node_modules/
 .env
 .web_server/node_modules/
 .git/
+.mcp.json
 .DS_Thumbs
 Thumbs.db
 *.log
