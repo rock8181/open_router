@@ -6,6 +6,8 @@ let isSearchMode = false;
 const sidebarItems = document.querySelectorAll('.nav-item');
 const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
+const addBtn = document.getElementById('addBtn');
+const moreBtn = document.getElementById('moreBtn');
 const refreshBtn = document.getElementById('refreshBtn');
 const pageTitle = document.getElementById('pageTitle');
 const breadcrumb = document.getElementById('breadcrumb');
@@ -57,24 +59,88 @@ function renderGrid(items) {
     grid.innerHTML = '<div class="empty-state">문서가 없습니다.</div>';
     return;
   }
-  items.forEach(item => {
+  items.forEach((item, index) => {
     const card = document.createElement('div');
-    card.className = `card type-${item.type}`;
+    card.className = `gf-root type-${item.type}`;
+    card.dataset.path = item.path;
+    card.dataset.type = item.type;
     card.innerHTML = `
-      <div class="type-badge">${item.type === 'directory' ? '폴더' : '파일'}</div>
-      <h3>${escapeHtml(item.name)}</h3>
-      <div class="meta">
-        ${item.type === 'file' ? `크기: ${formatSize(item.size)}` : '폴더'}
-        ${item.modifiedAt ? ' | ' + new Date(item.modifiedAt).toLocaleDateString('ko-KR') : ''}
+      <div class="gf-stage">
+        <div class="gf-back"></div>
+        <div class="gf-front">
+          <div class="gf-files">
+            <div class="gf-sheet">
+              <div class="gf-label">
+                <span class="type-badge">${item.type === 'directory' ? '폴더' : '파일'}</span>
+                <h3>${escapeHtml(item.name)}</h3>
+                <div class="meta">
+                  ${item.type === 'file' ? `크기: ${formatSize(item.size)}` : '폴더'}
+                  ${item.modifiedAt ? ' | ' + new Date(item.modifiedAt).toLocaleDateString('ko-KR') : ''}
+                </div>
+              </div>
+              <div class="gf-key">
+                <button class="gf-btn-add" type="button" title="추가">+</button>
+                <button class="gf-btn-more" type="button" title="더보기">···</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     `;
-    card.onclick = () => {
+
+    card.style.animation = `gfEnter 0.5s ease forwards`;
+    card.style.animationDelay = `${index * 0.06}s`;
+    card.style.opacity = '0';
+
+    const onCardClick = () => {
       if (item.type === 'directory') {
         loadDocuments(currentRoot, item.path);
       } else {
         openViewer(item);
       }
     };
+
+    card.addEventListener('click', onCardClick);
+
+    card.querySelector('.gf-btn-add').addEventListener('click', e => {
+      e.stopPropagation();
+      if (item.type === 'directory') {
+        const name = prompt('새 문서/폴더 이름');
+        if (name) {
+          setStatus(`추가: ${escapeHtml(name)}`);
+        }
+      } else {
+        setStatus(`${escapeHtml(item.name)} 추가`);
+      }
+    });
+
+    card.querySelector('.gf-btn-more').addEventListener('click', e => {
+      e.stopPropagation();
+      const actions = item.type === 'directory'
+        ? ['폴더 열기', '이름 변경', '삭제']
+        : ['문서 열기', '복사', '이름 변경', '삭제'];
+      const choice = prompt(`더보기 - ${escapeHtml(item.name)}\n${actions.join('\n')}`);
+      if (choice) {
+        setStatus(`선택: ${escapeHtml(choice)}`);
+      }
+    });
+
+    const front = card.querySelector('.gf-front');
+    const back = card.querySelector('.gf-back');
+
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      front.style.transform = `translate(${x * 10}px, ${y * 10}px)`;
+      back.style.transform = `translate(${x * -6}px, ${y * -6}px)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      front.style.transform = '';
+      back.style.transform = '';
+    });
+
     grid.appendChild(card);
   });
 }
@@ -117,19 +183,71 @@ function renderSearchResults(results) {
     grid.innerHTML = '<div class="empty-state">검색 결과가 없습니다.</div>';
     return;
   }
-  results.forEach(item => {
+  results.forEach((item, index) => {
     const card = document.createElement('div');
-    card.className = 'card type-file';
+    card.className = 'gf-root type-file';
+    card.dataset.path = item.file;
+    card.dataset.type = 'file';
     card.innerHTML = `
-      <div class="type-badge">파일</div>
-      <h3>${escapeHtml(item.name)}</h3>
-      <div class="meta">
-        [${item.root}] ${item.path}
-        ${item.snippet ? ' | ' : ''}
+      <div class="gf-stage">
+        <div class="gf-back"></div>
+        <div class="gf-front">
+          <div class="gf-files">
+            <div class="gf-sheet">
+              <div class="gf-label">
+                <span class="type-badge">파일</span>
+                <h3>${escapeHtml(item.name)}</h3>
+                <div class="meta">
+                  [${item.root}] ${item.path}
+                  ${item.snippet ? ' | ' : ''}
+                </div>
+                ${item.snippet ? `<div style="margin-top:8px;font-size:0.85rem;color:#94a3b8;">${escapeHtml(item.snippet)}</div>` : ''}
+              </div>
+              <div class="gf-key">
+                <button class="gf-btn-add" type="button" title="추가">+</button>
+                <button class="gf-btn-more" type="button" title="더보기">···</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      ${item.snippet ? `<div style="margin-top:8px;font-size:0.85rem;color:#94a3b8;">${escapeHtml(item.snippet)}</div>` : ''}
     `;
-    card.onclick = () => openViewer({ name: item.name, path: item.file });
+
+    card.style.animation = `gfEnter 0.5s ease forwards`;
+    card.style.animationDelay = `${index * 0.06}s`;
+    card.style.opacity = '0';
+
+    card.addEventListener('click', () => openViewer({ name: item.name, path: item.file }));
+
+    card.querySelector('.gf-btn-add').addEventListener('click', e => {
+      e.stopPropagation();
+      setStatus(`${escapeHtml(item.name)} 추가`);
+    });
+
+    card.querySelector('.gf-btn-more').addEventListener('click', e => {
+      e.stopPropagation();
+      const choice = prompt(`더보기 - ${escapeHtml(item.name)}\n문서 열기\n복사\n이름 변경\n삭제`);
+      if (choice) {
+        setStatus(`선택: ${escapeHtml(choice)}`);
+      }
+    });
+
+    const front = card.querySelector('.gf-front');
+    const back = card.querySelector('.gf-back');
+
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      front.style.transform = `translate(${x * 10}px, ${y * 10}px)`;
+      back.style.transform = `translate(${x * -6}px, ${y * -6}px)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      front.style.transform = '';
+      back.style.transform = '';
+    });
+
     grid.appendChild(card);
   });
 }
@@ -157,6 +275,20 @@ refreshBtn.addEventListener('click', () => loadDocuments(currentRoot, currentDir
 searchBtn.addEventListener('click', () => {
   const q = searchInput.value.trim();
   if (q) searchDocuments(q);
+});
+
+addBtn.addEventListener('click', () => {
+  const name = prompt('새 문서/폴더 이름을 입력하세요');
+  if (name) {
+    setStatus(`추가: ${escapeHtml(name)}`);
+  }
+});
+
+moreBtn.addEventListener('click', () => {
+  const choice = prompt(`전체 작업\n폴더 열기\n이름 변경\n삭제\n설정`);
+  if (choice) {
+    setStatus(`선택: ${escapeHtml(choice)}`);
+  }
 });
 
 searchInput.addEventListener('keypress', e => {

@@ -8,17 +8,17 @@
 </head>
 <body>
   <div class="layout">
-    <aside class="sidebar">
-      <div class="brand">
+    <aside class="sidebar glass">
+      <div class="brand glass-panel">
         <h2>OpenRouter</h2>
         <p>Study Document Viewer</p>
       </div>
-      <nav class="nav">
+      <nav class="nav glass-panel">
         <h3>폴더</h3>
-        <button class="nav-item active" data-root="open_router">open_router/doc</button>
-        <button class="nav-item" data-root="study">study/01_skill_claude</button>
+        <button class="nav-item active glass-item" data-root="open_router">open_router/doc</button>
+        <button class="nav-item glass-item" data-root="study">study/01_skill_claude</button>
       </nav>
-      <div class="search-box">
+      <div class="search-box glass-panel">
         <input type="text" id="searchInput" placeholder="문서 검색...">
         <button id="searchBtn">검색</button>
       </div>
@@ -26,22 +26,24 @@
     </aside>
 
     <main class="main">
-      <header class="header">
+      <header class="header glass-panel">
         <h1 id="pageTitle">문서 목록</h1>
         <div class="breadcrumb" id="breadcrumb"></div>
       </header>
 
-      <div class="toolbar">
+      <div class="toolbar glass-panel">
+        <button id="addBtn" class="glass-key">+</button>
         <button id="refreshBtn">새로고침</button>
         <span class="divider"></span>
-        <span id="docCount">0개 문서</span>
+        <span id="docCount" class="glass-label">0개 문서</span>
+        <button id="moreBtn" class="glass-key">···</button>
       </div>
 
       <div class="grid" id="grid"></div>
 
-      <div class="viewer-overlay" id="viewerOverlay">
-        <div class="viewer-panel">
-          <div class="viewer-header">
+      <div class="viewer-overlay glass" id="viewerOverlay">
+        <div class="viewer-panel glass-panel">
+          <div class="viewer-header glass-panel">
             <h2 id="viewerTitle"></h2>
             <div class="viewer-actions">
               <button id="copyBtn">복사</button>
