@@ -826,7 +826,7 @@ export default function GlassFolder({
               return (
                 <div key={id} role="listitem" className="gf-sheet-slot">
                   {file.href ? (
-                    <a {...common} href={file.href} onClick={() => onFileSelect?.(file, start + v)}>
+                    <a {...common} href={file.href} onClick={(e) => { if (onFileSelect) e.preventDefault(); onFileSelect?.(file, start + v); }}>
                       {inner}
                     </a>
                   ) : (
@@ -1172,6 +1172,7 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-hit:focus-visible ~ .gf-label .gf-title { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
 .gf-front:has(.gf-hit:focus-visible) .gf-front-rim path { stroke-width: 5; }
+.gf-hit:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
 
 .gf-label {
   position: absolute;
@@ -1187,7 +1188,7 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 .gf-root[data-place="top-left"] .gf-label { left: 28px; top: 34px; }
 .gf-root[data-place="top-right"] .gf-label { right: 32px; top: 52px; align-items: flex-start; }
 .gf-title {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 500;
   line-height: 1.15;
   letter-spacing: -.012em;
@@ -1197,15 +1198,10 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-meta {
   font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: 0.875rem;
   letter-spacing: .03em;
-  color: var(--gf-ink-soft);
+  color: hsl(var(--muted-foreground));
   white-space: nowrap;
-  animation: gf-roll .5s var(--gf-ease) both;
-}
-@keyframes gf-roll {
-  from { opacity: 0; translate: 0 7px; filter: blur(3px); }
-  to { opacity: 1; translate: 0 0; filter: blur(0); }
 }
 
 /* ---- the key: + or ··· ------------------------------------------------------ */
@@ -1260,9 +1256,8 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-key--more[aria-expanded="true"] { transform: scale(.96); }
 .gf-glyph { display: block; max-width: none; fill: none; stroke: currentColor; stroke-linecap: round; }
-.gf-glyph--plus { width: 26px; height: 26px; stroke-width: 1.6; animation: gf-turn .6s var(--gf-spring); }
+.gf-glyph--plus { width: 26px; height: 26px; stroke-width: 1.6; }
 .gf-glyph--more { width: 30px; height: 12px; stroke-width: 1.7; }
-@keyframes gf-turn { from { rotate: -90deg; } to { rotate: 0deg; } }
 
 /* ---- menu ------------------------------------------------------------------- */
 .gf-menu {
@@ -1290,18 +1285,19 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 .gf-menu-item {
   all: unset;
   box-sizing: border-box;
-  padding: 9px 12px;
+  padding: 12px 14px;
+  min-height: 44px;
   border-radius: 10px;
-  font-size: 13.5px;
+  font-size: 0.875rem;
   font-weight: 450;
-  color: #18181b;
+  color: hsl(var(--foreground));
   cursor: pointer;
 }
-.gf-root[data-tone="dark"] .gf-menu-item { color: #f4f4f5; }
-.gf-menu-item:hover, .gf-menu-item:focus-visible { background: rgba(24, 24, 27, .07); }
-.gf-root[data-tone="dark"] .gf-menu-item:hover, .gf-root[data-tone="dark"] .gf-menu-item:focus-visible { background: rgba(255, 255, 255, .09); }
-.gf-menu-item--danger { color: #d92d20; }
-.gf-root[data-tone="dark"] .gf-menu-item--danger { color: #ff6b5e; }
+.gf-root[data-tone="dark"] .gf-menu-item { color: hsl(var(--foreground)); }
+.gf-menu-item:hover, .gf-menu-item:focus-visible { background: hsl(var(--secondary)); }
+.gf-root[data-tone="dark"] .gf-menu-item:hover, .gf-root[data-tone="dark"] .gf-menu-item:focus-visible { background: hsl(var(--secondary-foreground) / 0.1); }
+.gf-menu-item--danger { color: hsl(var(--destructive)); }
+.gf-root[data-tone="dark"] .gf-menu-item--danger { color: hsl(var(--destructive-foreground)); }
 
 /* ---- entrance: the folder assembles itself ---------------------------------- */
 .gf-root:not([data-entered]) .gf-back,

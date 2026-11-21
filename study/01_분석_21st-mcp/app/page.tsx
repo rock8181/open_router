@@ -32,7 +32,7 @@ export default function Page() {
           ]}
         />
         <GlassFolder
-          label="My Files"
+          label="Personal Documents"
           meta="Wed 19 Aug"
           tone="dark"
           art="ember"
@@ -47,8 +47,9 @@ export default function Page() {
           ]}
         />
       </div>
-      <p className="relative mt-14 font-mono text-[11px] tracking-[0.18em] text-muted-foreground uppercase">
-        Hover to lean · Click to open · + to add
+      <h1 className="sr-only">Glass Folder Cards Demo</h1>
+      <p className="relative mt-14 text-sm text-muted-foreground">
+        Hover to lean, click to open, press + to add
       </p>
     </main>
   )

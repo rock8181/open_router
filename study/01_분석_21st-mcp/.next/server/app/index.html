@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="preload" as="script" fetchPriority="low" href="/_next/static/chunks/webpack-100b9e646d9c912e.js"/><script src="/_next/static/chunks/fd9d1056-42ad19599468d179.js" async=""></script><script src="/_next/static/chunks/117-f1429ed912381cfb.js" async=""></script><script src="/_next/static/chunks/main-app-e30c885bfb26d51c.js" async=""></script><script src="/_next/static/chunks/app/page-0c4e2237fb4802e6.js" async=""></script><title>Glass Folder Cards — 21st.dev MCP Integration</title><meta name="description" content="Glass folder component with frosted glass UI, built with shadcn/ui + Tailwind CSS"/><script src="/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body><main class="flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6 py-16"><div aria-hidden="true" class="pointer-events-none absolute inset-0 text-foreground opacity-[0.13]" style="background-image:radial-gradient(currentColor 1.1px, transparent 1.4px);background-size:22px 22px"></div><div class="relative grid max-w-[1180px] grid-cols-1 items-end justify-items-center gap-x-14 gap-y-10 md:grid-cols-2 xl:grid-cols-3"><div class="gf-root" data-tone="light" data-place="bottom-left" style="width:340px;height:326px"><style>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="preload" as="script" fetchPriority="low" href="/_next/static/chunks/webpack-100b9e646d9c912e.js"/><script src="/_next/static/chunks/fd9d1056-42ad19599468d179.js" async=""></script><script src="/_next/static/chunks/117-f1429ed912381cfb.js" async=""></script><script src="/_next/static/chunks/main-app-e30c885bfb26d51c.js" async=""></script><script src="/_next/static/chunks/app/page-049abffb2fa3ff6d.js" async=""></script><title>Glass Folder Cards — 21st.dev MCP Integration</title><meta name="description" content="Glass folder component with frosted glass UI, built with shadcn/ui + Tailwind CSS"/><script src="/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body><main class="flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6 py-16"><div aria-hidden="true" class="pointer-events-none absolute inset-0 text-foreground opacity-[0.13]" style="background-image:radial-gradient(currentColor 1.1px, transparent 1.4px);background-size:22px 22px"></div><div class="relative grid max-w-[1180px] grid-cols-1 items-end justify-items-center gap-x-14 gap-y-10 md:grid-cols-2 xl:grid-cols-3"><div class="gf-root" data-tone="light" data-place="bottom-left" style="width:340px;height:326px"><style>
 .gf-root {
   --gf-px: 0;
   --gf-py: 0;
@@ -271,6 +271,7 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-hit:focus-visible ~ .gf-label .gf-title { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
 .gf-front:has(.gf-hit:focus-visible) .gf-front-rim path { stroke-width: 5; }
+.gf-hit:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
 
 .gf-label {
   position: absolute;
@@ -286,7 +287,7 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 .gf-root[data-place=&quot;top-left&quot;] .gf-label { left: 28px; top: 34px; }
 .gf-root[data-place=&quot;top-right&quot;] .gf-label { right: 32px; top: 52px; align-items: flex-start; }
 .gf-title {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 500;
   line-height: 1.15;
   letter-spacing: -.012em;
@@ -296,15 +297,10 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-meta {
   font-family: ui-monospace, &quot;SF Mono&quot;, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: 0.875rem;
   letter-spacing: .03em;
-  color: var(--gf-ink-soft);
+  color: hsl(var(--muted-foreground));
   white-space: nowrap;
-  animation: gf-roll .5s var(--gf-ease) both;
-}
-@keyframes gf-roll {
-  from { opacity: 0; translate: 0 7px; filter: blur(3px); }
-  to { opacity: 1; translate: 0 0; filter: blur(0); }
 }
 
 /* ---- the key: + or ··· ------------------------------------------------------ */
@@ -359,9 +355,8 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-key--more[aria-expanded=&quot;true&quot;] { transform: scale(.96); }
 .gf-glyph { display: block; max-width: none; fill: none; stroke: currentColor; stroke-linecap: round; }
-.gf-glyph--plus { width: 26px; height: 26px; stroke-width: 1.6; animation: gf-turn .6s var(--gf-spring); }
+.gf-glyph--plus { width: 26px; height: 26px; stroke-width: 1.6; }
 .gf-glyph--more { width: 30px; height: 12px; stroke-width: 1.7; }
-@keyframes gf-turn { from { rotate: -90deg; } to { rotate: 0deg; } }
 
 /* ---- menu ------------------------------------------------------------------- */
 .gf-menu {
@@ -389,18 +384,19 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 .gf-menu-item {
   all: unset;
   box-sizing: border-box;
-  padding: 9px 12px;
+  padding: 12px 14px;
+  min-height: 44px;
   border-radius: 10px;
-  font-size: 13.5px;
+  font-size: 0.875rem;
   font-weight: 450;
-  color: #18181b;
+  color: hsl(var(--foreground));
   cursor: pointer;
 }
-.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item { color: #f4f4f5; }
-.gf-menu-item:hover, .gf-menu-item:focus-visible { background: rgba(24, 24, 27, .07); }
-.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:hover, .gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:focus-visible { background: rgba(255, 255, 255, .09); }
-.gf-menu-item--danger { color: #d92d20; }
-.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item--danger { color: #ff6b5e; }
+.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item { color: hsl(var(--foreground)); }
+.gf-menu-item:hover, .gf-menu-item:focus-visible { background: hsl(var(--secondary)); }
+.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:hover, .gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:focus-visible { background: hsl(var(--secondary-foreground) / 0.1); }
+.gf-menu-item--danger { color: hsl(var(--destructive)); }
+.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item--danger { color: hsl(var(--destructive-foreground)); }
 
 /* ---- entrance: the folder assembles itself ---------------------------------- */
 .gf-root:not([data-entered]) .gf-back,
@@ -422,7 +418,7 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
   }
   .gf-tilt { transform: none; }
 }
-</style><div class="gf-stage" style="transform:translateY(54px) scale(1)"><div class="gf-tilt"><div class="gf-shadow" aria-hidden="true"></div><div class="gf-back" style="clip-path:path(&#x27;M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z&#x27;)" aria-hidden="true"><canvas aria-hidden="true" class="gf-art" style="width:364px;height:296px;max-width:none"></canvas><div class="gf-back-sheen"></div></div><svg class="gf-rim gf-back-rim" viewBox="0 0 340 272" aria-hidden="true"><path d="M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z"></path></svg><div class="gf-front" style="clip-path:path(&#x27;M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z&#x27;)"><div class="gf-tint" aria-hidden="true"></div><div class="gf-spec" aria-hidden="true"></div><svg class="gf-rim gf-front-rim" viewBox="0 0 340 198" aria-hidden="true"><defs><linearGradient id="gf-rim-R6jsq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.95"></stop><stop offset="0.35" stop-color="#fff" stop-opacity="0.35"></stop><stop offset="1" stop-color="#fff" stop-opacity="0.12"></stop></linearGradient></defs><path d="M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z" stroke="url(#gf-rim-R6jsq)"></path></svg><button type="button" class="gf-hit" aria-expanded="false" aria-label="Open My Files, 3 items"></button><div class="gf-label"><span class="gf-title">My Files</span><span class="gf-meta">3 items</span></div></div><div class="gf-files" role="list" aria-label="My Files contents"><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:-1;--gf-depth:2;--gf-jx:-2.45px;--gf-jr:0.72deg;z-index:1" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Cover — final</span><span class="gf-sheet-meta">PNG · 4.8 MB</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:0;--gf-depth:1;--gf-jx:3.16px;--gf-jr:-1.06deg;z-index:2" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Moodboard</span><span class="gf-sheet-meta">24 images</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet" style="--gf-slot:1;--gf-depth:0;--gf-jx:2.27px;--gf-jr:-1.47deg;z-index:3" type="button"><span class="gf-lines" aria-hidden="true"><i style="width:86%"></i><i style="width:92%"></i><i style="width:64%"></i><i style="width:88%"></i><i style="width:42%"></i></span><span class="gf-sheet-head"><span class="gf-sheet-name">Brief.pdf</span><span class="gf-sheet-meta">PDF · 1.2 MB</span></span></button></div></div><button type="button" class="gf-key gf-key--add" aria-label="Add a file to My Files"><svg class="gf-glyph gf-glyph--plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v15M4.5 12h15"></path></svg></button></div></div></div><div class="gf-root" data-tone="light" data-place="top-left" style="width:340px;height:326px"><style>
+</style><div class="gf-stage" style="transform:translateY(54px) scale(1)"><div class="gf-tilt"><div class="gf-shadow" aria-hidden="true"></div><div class="gf-back" style="clip-path:path(&#x27;M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z&#x27;)" aria-hidden="true"><canvas aria-hidden="true" class="gf-art" style="width:364px;height:296px;max-width:none"></canvas><div class="gf-back-sheen"></div></div><svg class="gf-rim gf-back-rim" viewBox="0 0 340 272" aria-hidden="true"><path d="M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z"></path></svg><div class="gf-front" style="clip-path:path(&#x27;M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z&#x27;)"><div class="gf-tint" aria-hidden="true"></div><div class="gf-spec" aria-hidden="true"></div><svg class="gf-rim gf-front-rim" viewBox="0 0 340 198" aria-hidden="true"><defs><linearGradient id="gf-rim-Rajsq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.95"></stop><stop offset="0.35" stop-color="#fff" stop-opacity="0.35"></stop><stop offset="1" stop-color="#fff" stop-opacity="0.12"></stop></linearGradient></defs><path d="M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z" stroke="url(#gf-rim-Rajsq)"></path></svg><button type="button" class="gf-hit" aria-expanded="false" aria-label="Open My Files, 3 items"></button><div class="gf-label"><span class="gf-title">My Files</span><span class="gf-meta">3 items</span></div></div><div class="gf-files" role="list" aria-label="My Files contents"><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:-1;--gf-depth:2;--gf-jx:-2.45px;--gf-jr:0.72deg;z-index:1" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Cover — final</span><span class="gf-sheet-meta">PNG · 4.8 MB</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:0;--gf-depth:1;--gf-jx:3.16px;--gf-jr:-1.06deg;z-index:2" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Moodboard</span><span class="gf-sheet-meta">24 images</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet" style="--gf-slot:1;--gf-depth:0;--gf-jx:2.27px;--gf-jr:-1.47deg;z-index:3" type="button"><span class="gf-lines" aria-hidden="true"><i style="width:86%"></i><i style="width:92%"></i><i style="width:64%"></i><i style="width:88%"></i><i style="width:42%"></i></span><span class="gf-sheet-head"><span class="gf-sheet-name">Brief.pdf</span><span class="gf-sheet-meta">PDF · 1.2 MB</span></span></button></div></div><button type="button" class="gf-key gf-key--add" aria-label="Add a file to My Files"><svg class="gf-glyph gf-glyph--plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v15M4.5 12h15"></path></svg></button></div></div></div><div class="gf-root" data-tone="light" data-place="top-left" style="width:340px;height:326px"><style>
 .gf-root {
   --gf-px: 0;
   --gf-py: 0;
@@ -695,6 +691,7 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-hit:focus-visible ~ .gf-label .gf-title { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
 .gf-front:has(.gf-hit:focus-visible) .gf-front-rim path { stroke-width: 5; }
+.gf-hit:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
 
 .gf-label {
   position: absolute;
@@ -710,7 +707,7 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 .gf-root[data-place=&quot;top-left&quot;] .gf-label { left: 28px; top: 34px; }
 .gf-root[data-place=&quot;top-right&quot;] .gf-label { right: 32px; top: 52px; align-items: flex-start; }
 .gf-title {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 500;
   line-height: 1.15;
   letter-spacing: -.012em;
@@ -720,15 +717,10 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-meta {
   font-family: ui-monospace, &quot;SF Mono&quot;, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: 0.875rem;
   letter-spacing: .03em;
-  color: var(--gf-ink-soft);
+  color: hsl(var(--muted-foreground));
   white-space: nowrap;
-  animation: gf-roll .5s var(--gf-ease) both;
-}
-@keyframes gf-roll {
-  from { opacity: 0; translate: 0 7px; filter: blur(3px); }
-  to { opacity: 1; translate: 0 0; filter: blur(0); }
 }
 
 /* ---- the key: + or ··· ------------------------------------------------------ */
@@ -783,9 +775,8 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-key--more[aria-expanded=&quot;true&quot;] { transform: scale(.96); }
 .gf-glyph { display: block; max-width: none; fill: none; stroke: currentColor; stroke-linecap: round; }
-.gf-glyph--plus { width: 26px; height: 26px; stroke-width: 1.6; animation: gf-turn .6s var(--gf-spring); }
+.gf-glyph--plus { width: 26px; height: 26px; stroke-width: 1.6; }
 .gf-glyph--more { width: 30px; height: 12px; stroke-width: 1.7; }
-@keyframes gf-turn { from { rotate: -90deg; } to { rotate: 0deg; } }
 
 /* ---- menu ------------------------------------------------------------------- */
 .gf-menu {
@@ -813,18 +804,19 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 .gf-menu-item {
   all: unset;
   box-sizing: border-box;
-  padding: 9px 12px;
+  padding: 12px 14px;
+  min-height: 44px;
   border-radius: 10px;
-  font-size: 13.5px;
+  font-size: 0.875rem;
   font-weight: 450;
-  color: #18181b;
+  color: hsl(var(--foreground));
   cursor: pointer;
 }
-.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item { color: #f4f4f5; }
-.gf-menu-item:hover, .gf-menu-item:focus-visible { background: rgba(24, 24, 27, .07); }
-.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:hover, .gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:focus-visible { background: rgba(255, 255, 255, .09); }
-.gf-menu-item--danger { color: #d92d20; }
-.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item--danger { color: #ff6b5e; }
+.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item { color: hsl(var(--foreground)); }
+.gf-menu-item:hover, .gf-menu-item:focus-visible { background: hsl(var(--secondary)); }
+.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:hover, .gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:focus-visible { background: hsl(var(--secondary-foreground) / 0.1); }
+.gf-menu-item--danger { color: hsl(var(--destructive)); }
+.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item--danger { color: hsl(var(--destructive-foreground)); }
 
 /* ---- entrance: the folder assembles itself ---------------------------------- */
 .gf-root:not([data-entered]) .gf-back,
@@ -846,7 +838,7 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
   }
   .gf-tilt { transform: none; }
 }
-</style><div class="gf-stage" style="transform:translateY(54px) scale(1)"><div class="gf-tilt"><div class="gf-shadow" aria-hidden="true"></div><div class="gf-back" style="clip-path:path(&#x27;M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z&#x27;)" aria-hidden="true"><div class="gf-back-sheen"></div></div><svg class="gf-rim gf-back-rim" viewBox="0 0 340 272" aria-hidden="true"><path d="M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z"></path></svg><div class="gf-front" style="clip-path:path(&#x27;M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z&#x27;)"><div class="gf-tint" aria-hidden="true"></div><div class="gf-spec" aria-hidden="true"></div><svg class="gf-rim gf-front-rim" viewBox="0 0 340 198" aria-hidden="true"><defs><linearGradient id="gf-rim-Rajsq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.95"></stop><stop offset="0.35" stop-color="#fff" stop-opacity="0.35"></stop><stop offset="1" stop-color="#fff" stop-opacity="0.12"></stop></linearGradient></defs><path d="M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z" stroke="url(#gf-rim-Rajsq)"></path></svg><button type="button" class="gf-hit" aria-expanded="false" aria-label="Open Archives, 4 items"></button><div class="gf-label"><span class="gf-title">Archives</span><span class="gf-meta">4 items</span></div></div><div class="gf-files" role="list" aria-label="Archives contents"><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:-1;--gf-depth:3;--gf-jx:-4.75px;--gf-jr:1.58deg;z-index:1" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Lookbook 2024</span><span class="gf-sheet-meta">38 images</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet" style="--gf-slot:-0.33333333333333337;--gf-depth:2;--gf-jx:-0.57px;--gf-jr:-0.22deg;z-index:2" type="button"><span class="gf-lines" aria-hidden="true"><i style="width:86%"></i><i style="width:92%"></i><i style="width:64%"></i><i style="width:88%"></i><i style="width:42%"></i></span><span class="gf-sheet-head"><span class="gf-sheet-name">Invoices</span><span class="gf-sheet-meta">12 PDFs</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:0.33333333333333326;--gf-depth:1;--gf-jx:-4.13px;--gf-jr:-1.25deg;z-index:3" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Shoot — Lisbon</span><span class="gf-sheet-meta">RAW · 2.1 GB</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet" style="--gf-slot:1;--gf-depth:0;--gf-jx:4.13px;--gf-jr:0.80deg;z-index:4" type="button"><span class="gf-lines" aria-hidden="true"><i style="width:86%"></i><i style="width:92%"></i><i style="width:64%"></i><i style="width:88%"></i><i style="width:42%"></i></span><span class="gf-sheet-head"><span class="gf-sheet-name">Contract.pdf</span><span class="gf-sheet-meta">PDF · 320 KB</span></span></button></div></div><button type="button" class="gf-key gf-key--more" aria-label="More options for Archives" aria-haspopup="menu" aria-expanded="false" aria-controls="gf-menu-Rajsq"><svg class="gf-glyph gf-glyph--more" viewBox="0 0 30 12" aria-hidden="true"><rect x="1" y="1.5" width="8" height="9" rx="3.4"></rect><rect x="11" y="1.5" width="8" height="9" rx="3.4"></rect><rect x="21" y="1.5" width="8" height="9" rx="3.4"></rect></svg></button><div id="gf-menu-Rajsq" role="menu" aria-label="Archives options" class="gf-menu"><button type="button" role="menuitem" disabled="" class="gf-menu-item">Open folder</button><button type="button" role="menuitem" disabled="" class="gf-menu-item">Rename</button><button type="button" role="menuitem" disabled="" class="gf-menu-item">Share…</button><button type="button" role="menuitem" disabled="" class="gf-menu-item gf-menu-item--danger">Move to Trash</button></div></div></div></div><div class="gf-root" data-tone="dark" data-place="top-right" style="width:340px;height:326px"><style>
+</style><div class="gf-stage" style="transform:translateY(54px) scale(1)"><div class="gf-tilt"><div class="gf-shadow" aria-hidden="true"></div><div class="gf-back" style="clip-path:path(&#x27;M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z&#x27;)" aria-hidden="true"><div class="gf-back-sheen"></div></div><svg class="gf-rim gf-back-rim" viewBox="0 0 340 272" aria-hidden="true"><path d="M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z"></path></svg><div class="gf-front" style="clip-path:path(&#x27;M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z&#x27;)"><div class="gf-tint" aria-hidden="true"></div><div class="gf-spec" aria-hidden="true"></div><svg class="gf-rim gf-front-rim" viewBox="0 0 340 198" aria-hidden="true"><defs><linearGradient id="gf-rim-Rijsq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.95"></stop><stop offset="0.35" stop-color="#fff" stop-opacity="0.35"></stop><stop offset="1" stop-color="#fff" stop-opacity="0.12"></stop></linearGradient></defs><path d="M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z" stroke="url(#gf-rim-Rijsq)"></path></svg><button type="button" class="gf-hit" aria-expanded="false" aria-label="Open Archives, 4 items"></button><div class="gf-label"><span class="gf-title">Archives</span><span class="gf-meta">4 items</span></div></div><div class="gf-files" role="list" aria-label="Archives contents"><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:-1;--gf-depth:3;--gf-jx:-4.75px;--gf-jr:1.58deg;z-index:1" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Lookbook 2024</span><span class="gf-sheet-meta">38 images</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet" style="--gf-slot:-0.33333333333333337;--gf-depth:2;--gf-jx:-0.57px;--gf-jr:-0.22deg;z-index:2" type="button"><span class="gf-lines" aria-hidden="true"><i style="width:86%"></i><i style="width:92%"></i><i style="width:64%"></i><i style="width:88%"></i><i style="width:42%"></i></span><span class="gf-sheet-head"><span class="gf-sheet-name">Invoices</span><span class="gf-sheet-meta">12 PDFs</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:0.33333333333333326;--gf-depth:1;--gf-jx:-4.13px;--gf-jr:-1.25deg;z-index:3" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Shoot — Lisbon</span><span class="gf-sheet-meta">RAW · 2.1 GB</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet" style="--gf-slot:1;--gf-depth:0;--gf-jx:4.13px;--gf-jr:0.80deg;z-index:4" type="button"><span class="gf-lines" aria-hidden="true"><i style="width:86%"></i><i style="width:92%"></i><i style="width:64%"></i><i style="width:88%"></i><i style="width:42%"></i></span><span class="gf-sheet-head"><span class="gf-sheet-name">Contract.pdf</span><span class="gf-sheet-meta">PDF · 320 KB</span></span></button></div></div><button type="button" class="gf-key gf-key--more" aria-label="More options for Archives" aria-haspopup="menu" aria-expanded="false" aria-controls="gf-menu-Rijsq"><svg class="gf-glyph gf-glyph--more" viewBox="0 0 30 12" aria-hidden="true"><rect x="1" y="1.5" width="8" height="9" rx="3.4"></rect><rect x="11" y="1.5" width="8" height="9" rx="3.4"></rect><rect x="21" y="1.5" width="8" height="9" rx="3.4"></rect></svg></button><div id="gf-menu-Rijsq" role="menu" aria-label="Archives options" class="gf-menu"><button type="button" role="menuitem" disabled="" class="gf-menu-item">Open folder</button><button type="button" role="menuitem" disabled="" class="gf-menu-item">Rename</button><button type="button" role="menuitem" disabled="" class="gf-menu-item">Share…</button><button type="button" role="menuitem" disabled="" class="gf-menu-item gf-menu-item--danger">Move to Trash</button></div></div></div></div><div class="gf-root" data-tone="dark" data-place="top-right" style="width:340px;height:326px"><style>
 .gf-root {
   --gf-px: 0;
   --gf-py: 0;
@@ -1119,6 +1111,7 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-hit:focus-visible ~ .gf-label .gf-title { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
 .gf-front:has(.gf-hit:focus-visible) .gf-front-rim path { stroke-width: 5; }
+.gf-hit:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
 
 .gf-label {
   position: absolute;
@@ -1134,7 +1127,7 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 .gf-root[data-place=&quot;top-left&quot;] .gf-label { left: 28px; top: 34px; }
 .gf-root[data-place=&quot;top-right&quot;] .gf-label { right: 32px; top: 52px; align-items: flex-start; }
 .gf-title {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 500;
   line-height: 1.15;
   letter-spacing: -.012em;
@@ -1144,15 +1137,10 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-meta {
   font-family: ui-monospace, &quot;SF Mono&quot;, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: 0.875rem;
   letter-spacing: .03em;
-  color: var(--gf-ink-soft);
+  color: hsl(var(--muted-foreground));
   white-space: nowrap;
-  animation: gf-roll .5s var(--gf-ease) both;
-}
-@keyframes gf-roll {
-  from { opacity: 0; translate: 0 7px; filter: blur(3px); }
-  to { opacity: 1; translate: 0 0; filter: blur(0); }
 }
 
 /* ---- the key: + or ··· ------------------------------------------------------ */
@@ -1207,9 +1195,8 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 }
 .gf-key--more[aria-expanded=&quot;true&quot;] { transform: scale(.96); }
 .gf-glyph { display: block; max-width: none; fill: none; stroke: currentColor; stroke-linecap: round; }
-.gf-glyph--plus { width: 26px; height: 26px; stroke-width: 1.6; animation: gf-turn .6s var(--gf-spring); }
+.gf-glyph--plus { width: 26px; height: 26px; stroke-width: 1.6; }
 .gf-glyph--more { width: 30px; height: 12px; stroke-width: 1.7; }
-@keyframes gf-turn { from { rotate: -90deg; } to { rotate: 0deg; } }
 
 /* ---- menu ------------------------------------------------------------------- */
 .gf-menu {
@@ -1237,18 +1224,19 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
 .gf-menu-item {
   all: unset;
   box-sizing: border-box;
-  padding: 9px 12px;
+  padding: 12px 14px;
+  min-height: 44px;
   border-radius: 10px;
-  font-size: 13.5px;
+  font-size: 0.875rem;
   font-weight: 450;
-  color: #18181b;
+  color: hsl(var(--foreground));
   cursor: pointer;
 }
-.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item { color: #f4f4f5; }
-.gf-menu-item:hover, .gf-menu-item:focus-visible { background: rgba(24, 24, 27, .07); }
-.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:hover, .gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:focus-visible { background: rgba(255, 255, 255, .09); }
-.gf-menu-item--danger { color: #d92d20; }
-.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item--danger { color: #ff6b5e; }
+.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item { color: hsl(var(--foreground)); }
+.gf-menu-item:hover, .gf-menu-item:focus-visible { background: hsl(var(--secondary)); }
+.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:hover, .gf-root[data-tone=&quot;dark&quot;] .gf-menu-item:focus-visible { background: hsl(var(--secondary-foreground) / 0.1); }
+.gf-menu-item--danger { color: hsl(var(--destructive)); }
+.gf-root[data-tone=&quot;dark&quot;] .gf-menu-item--danger { color: hsl(var(--destructive-foreground)); }
 
 /* ---- entrance: the folder assembles itself ---------------------------------- */
 .gf-root:not([data-entered]) .gf-back,
@@ -1270,4 +1258,4 @@ canvas.gf-sheet-art[data-ready] { opacity: 1; filter: none; }
   }
   .gf-tilt { transform: none; }
 }
-</style><div class="gf-stage" style="transform:translateY(54px) scale(1)"><div class="gf-tilt"><div class="gf-shadow" aria-hidden="true"></div><div class="gf-back" style="clip-path:path(&#x27;M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z&#x27;)" aria-hidden="true"><canvas aria-hidden="true" class="gf-art" style="width:364px;height:296px;max-width:none"></canvas><div class="gf-back-sheen"></div></div><svg class="gf-rim gf-back-rim" viewBox="0 0 340 272" aria-hidden="true"><path d="M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z"></path></svg><div class="gf-front" style="clip-path:path(&#x27;M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z&#x27;)"><div class="gf-tint" aria-hidden="true"></div><div class="gf-spec" aria-hidden="true"></div><svg class="gf-rim gf-front-rim" viewBox="0 0 340 198" aria-hidden="true"><defs><linearGradient id="gf-rim-Rejsq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.95"></stop><stop offset="0.35" stop-color="#fff" stop-opacity="0.35"></stop><stop offset="1" stop-color="#fff" stop-opacity="0.12"></stop></linearGradient></defs><path d="M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z" stroke="url(#gf-rim-Rejsq)"></path></svg><button type="button" class="gf-hit" aria-expanded="false" aria-label="Open My Files, 3 items"></button><div class="gf-label"><span class="gf-title">My Files</span><span class="gf-meta">Wed 19 Aug</span></div></div><div class="gf-files" role="list" aria-label="My Files contents"><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:-1;--gf-depth:2;--gf-jx:-3.41px;--gf-jr:1.27deg;z-index:1" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Stills</span><span class="gf-sheet-meta">64 images</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet" style="--gf-slot:0;--gf-depth:1;--gf-jx:-3.71px;--gf-jr:-1.10deg;z-index:2" type="button"><span class="gf-lines" aria-hidden="true"><i style="width:86%"></i><i style="width:92%"></i><i style="width:64%"></i><i style="width:88%"></i><i style="width:42%"></i></span><span class="gf-sheet-head"><span class="gf-sheet-name">Edit notes</span><span class="gf-sheet-meta">TXT · 4 KB</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:1;--gf-depth:0;--gf-jx:0.37px;--gf-jr:-0.99deg;z-index:3" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Grade v3</span><span class="gf-sheet-meta">DRX · 18 MB</span></span></button></div></div></div></div></div></div><p class="relative mt-14 font-mono text-[11px] tracking-[0.18em] text-muted-foreground uppercase">Hover to lean · Click to open · + to add</p></main><script src="/_next/static/chunks/webpack-100b9e646d9c912e.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:I[2846,[],\"\"]\n3:I[6519,[\"931\",\"static/chunks/app/page-0c4e2237fb4802e6.js\"],\"default\"]\n4:I[4707,[],\"\"]\n5:I[6423,[],\"\"]\n7:I[1060,[],\"\"]\n8:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L1\",null,{\"buildId\":\"qM4hDkc0X25-GC4UzXSFb\",\"assetPrefix\":\"\",\"urlParts\":[\"\",\"\"],\"initialTree\":[\"\",{\"children\":[\"__PAGE__\",{}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"__PAGE__\",{},[[\"$L2\",[\"$\",\"main\",null,{\"className\":\"flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6 py-16\",\"children\":[[\"$\",\"div\",null,{\"aria-hidden\":\"true\",\"className\":\"pointer-events-none absolute inset-0 text-foreground opacity-[0.13]\",\"style\":{\"backgroundImage\":\"radial-gradient(currentColor 1.1px, transparent 1.4px)\",\"backgroundSize\":\"22px 22px\"}}],[\"$\",\"div\",null,{\"className\":\"relative grid max-w-[1180px] grid-cols-1 items-end justify-items-center gap-x-14 gap-y-10 md:grid-cols-2 xl:grid-cols-3\",\"children\":[[\"$\",\"$L3\",null,{\"label\":\"My Files\",\"art\":\"aurora\",\"seed\":3,\"appearDelay\":0}],[\"$\",\"$L3\",null,{\"label\":\"Archives\",\"art\":\"none\",\"action\":\"more\",\"labelPlacement\":\"top-left\",\"appearDelay\":140,\"files\":[{\"name\":\"Lookbook 2024\",\"meta\":\"38 images\",\"art\":\"dusk\"},{\"name\":\"Invoices\",\"meta\":\"12 PDFs\"},{\"name\":\"Shoot — Lisbon\",\"meta\":\"RAW · 2.1 GB\",\"art\":\"ember\"},{\"name\":\"Contract.pdf\",\"meta\":\"PDF · 320 KB\"}],\"menu\":[{\"label\":\"Rename\"},{\"label\":\"Share…\"},{\"label\":\"Move to Trash\",\"danger\":true}]}],[\"$\",\"$L3\",null,{\"label\":\"My Files\",\"meta\":\"Wed 19 Aug\",\"tone\":\"dark\",\"art\":\"ember\",\"seed\":11,\"action\":\"none\",\"labelPlacement\":\"top-right\",\"appearDelay\":280,\"files\":[{\"name\":\"Stills\",\"meta\":\"64 images\",\"art\":\"verdant\"},{\"name\":\"Edit notes\",\"meta\":\"TXT · 4 KB\"},{\"name\":\"Grade v3\",\"meta\":\"DRX · 18 MB\",\"art\":\"aurora\"}]}]]}],[\"$\",\"p\",null,{\"className\":\"relative mt-14 font-mono text-[11px] tracking-[0.18em] text-muted-foreground uppercase\",\"children\":\"Hover to lean · Click to open · + to add\"}]]}],null],null],null]},[[null,[\"$\",\"html\",null,{\"lang\":\"ko\",\"children\":[\"$\",\"body\",null,{\"children\":[\"$\",\"$L4\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L5\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$L6\"],\"globalErrorComponent\":\"$7\",\"missingSlots\":\"$W8\"}]\n"])</script><script>self.__next_f.push([1,"6:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"Glass Folder Cards — 21st.dev MCP Integration\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"Glass folder component with frosted glass UI, built with shadcn/ui + Tailwind CSS\"}]]\n2:null\n"])</script></body></html>
+</style><div class="gf-stage" style="transform:translateY(54px) scale(1)"><div class="gf-tilt"><div class="gf-shadow" aria-hidden="true"></div><div class="gf-back" style="clip-path:path(&#x27;M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z&#x27;)" aria-hidden="true"><canvas aria-hidden="true" class="gf-art" style="width:364px;height:296px;max-width:none"></canvas><div class="gf-back-sheen"></div></div><svg class="gf-rim gf-back-rim" viewBox="0 0 340 272" aria-hidden="true"><path d="M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z"></path></svg><div class="gf-front" style="clip-path:path(&#x27;M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z&#x27;)"><div class="gf-tint" aria-hidden="true"></div><div class="gf-spec" aria-hidden="true"></div><svg class="gf-rim gf-front-rim" viewBox="0 0 340 198" aria-hidden="true"><defs><linearGradient id="gf-rim-Rqjsq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.95"></stop><stop offset="0.35" stop-color="#fff" stop-opacity="0.35"></stop><stop offset="1" stop-color="#fff" stop-opacity="0.12"></stop></linearGradient></defs><path d="M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 176A22 22 0 0 1 318 198L22 198A22 22 0 0 1 0 176Z" stroke="url(#gf-rim-Rqjsq)"></path></svg><button type="button" class="gf-hit" aria-expanded="false" aria-label="Open Personal Documents, 3 items"></button><div class="gf-label"><span class="gf-title">Personal Documents</span><span class="gf-meta">Wed 19 Aug</span></div></div><div class="gf-files" role="list" aria-label="Personal Documents contents"><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:-1;--gf-depth:2;--gf-jx:-3.41px;--gf-jr:1.27deg;z-index:1" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Stills</span><span class="gf-sheet-meta">64 images</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet" style="--gf-slot:0;--gf-depth:1;--gf-jx:-3.71px;--gf-jr:-1.10deg;z-index:2" type="button"><span class="gf-lines" aria-hidden="true"><i style="width:86%"></i><i style="width:92%"></i><i style="width:64%"></i><i style="width:88%"></i><i style="width:42%"></i></span><span class="gf-sheet-head"><span class="gf-sheet-name">Edit notes</span><span class="gf-sheet-meta">TXT · 4 KB</span></span></button></div><div role="listitem" class="gf-sheet-slot"><button class="gf-sheet gf-sheet--art" style="--gf-slot:1;--gf-depth:0;--gf-jx:0.37px;--gf-jr:-0.99deg;z-index:3" type="button"><canvas aria-hidden="true" class="gf-sheet-art" style="width:272px;height:184px;max-width:none"></canvas><span class="gf-sheet-head"><span class="gf-sheet-name">Grade v3</span><span class="gf-sheet-meta">DRX · 18 MB</span></span></button></div></div></div></div></div></div><h1 class="sr-only">Glass Folder Cards Demo</h1><p class="relative mt-14 text-sm text-muted-foreground">Hover to lean, click to open, press + to add</p></main><script src="/_next/static/chunks/webpack-100b9e646d9c912e.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,"1:I[2846,[],\"\"]\n3:I[6519,[\"931\",\"static/chunks/app/page-049abffb2fa3ff6d.js\"],\"default\"]\n4:I[4707,[],\"\"]\n5:I[6423,[],\"\"]\n7:I[1060,[],\"\"]\n8:[]\n"])</script><script>self.__next_f.push([1,"0:[\"$\",\"$L1\",null,{\"buildId\":\"3iWOtYyhvtoiamQ_6djnS\",\"assetPrefix\":\"\",\"urlParts\":[\"\",\"\"],\"initialTree\":[\"\",{\"children\":[\"__PAGE__\",{}]},\"$undefined\",\"$undefined\",true],\"initialSeedData\":[\"\",{\"children\":[\"__PAGE__\",{},[[\"$L2\",[\"$\",\"main\",null,{\"className\":\"flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6 py-16\",\"children\":[[\"$\",\"div\",null,{\"aria-hidden\":\"true\",\"className\":\"pointer-events-none absolute inset-0 text-foreground opacity-[0.13]\",\"style\":{\"backgroundImage\":\"radial-gradient(currentColor 1.1px, transparent 1.4px)\",\"backgroundSize\":\"22px 22px\"}}],[\"$\",\"div\",null,{\"className\":\"relative grid max-w-[1180px] grid-cols-1 items-end justify-items-center gap-x-14 gap-y-10 md:grid-cols-2 xl:grid-cols-3\",\"children\":[[\"$\",\"$L3\",null,{\"label\":\"My Files\",\"art\":\"aurora\",\"seed\":3,\"appearDelay\":0}],[\"$\",\"$L3\",null,{\"label\":\"Archives\",\"art\":\"none\",\"action\":\"more\",\"labelPlacement\":\"top-left\",\"appearDelay\":140,\"files\":[{\"name\":\"Lookbook 2024\",\"meta\":\"38 images\",\"art\":\"dusk\"},{\"name\":\"Invoices\",\"meta\":\"12 PDFs\"},{\"name\":\"Shoot — Lisbon\",\"meta\":\"RAW · 2.1 GB\",\"art\":\"ember\"},{\"name\":\"Contract.pdf\",\"meta\":\"PDF · 320 KB\"}],\"menu\":[{\"label\":\"Rename\"},{\"label\":\"Share…\"},{\"label\":\"Move to Trash\",\"danger\":true}]}],[\"$\",\"$L3\",null,{\"label\":\"Personal Documents\",\"meta\":\"Wed 19 Aug\",\"tone\":\"dark\",\"art\":\"ember\",\"seed\":11,\"action\":\"none\",\"labelPlacement\":\"top-right\",\"appearDelay\":280,\"files\":[{\"name\":\"Stills\",\"meta\":\"64 images\",\"art\":\"verdant\"},{\"name\":\"Edit notes\",\"meta\":\"TXT · 4 KB\"},{\"name\":\"Grade v3\",\"meta\":\"DRX · 18 MB\",\"art\":\"aurora\"}]}]]}],[\"$\",\"h1\",null,{\"className\":\"sr-only\",\"children\":\"Glass Folder Cards Demo\"}],[\"$\",\"p\",null,{\"className\":\"relative mt-14 text-sm text-muted-foreground\",\"children\":\"Hover to lean, click to open, press + to add\"}]]}],null],null],null]},[[null,[\"$\",\"html\",null,{\"lang\":\"en\",\"children\":[\"$\",\"body\",null,{\"children\":[\"$\",\"$L4\",null,{\"parallelRouterKey\":\"children\",\"segmentPath\":[\"children\"],\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L5\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":\"404\"}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],\"notFoundStyles\":[]}]}]}]],null],null],\"couldBeIntercepted\":false,\"initialHead\":[null,\"$L6\"],\"globalErrorComponent\":\"$7\",\"missingSlots\":\"$W8\"}]\n"])</script><script>self.__next_f.push([1,"6:[[\"$\",\"meta\",\"0\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"1\",{\"charSet\":\"utf-8\"}],[\"$\",\"title\",\"2\",{\"children\":\"Glass Folder Cards — 21st.dev MCP Integration\"}],[\"$\",\"meta\",\"3\",{\"name\":\"description\",\"content\":\"Glass folder component with frosted glass UI, built with shadcn/ui + Tailwind CSS\"}]]\n2:null\n"])</script></body></html>

@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const ROOTS = {
-  open_router: path.resolve('C:/work/openrouter/open_router/doc'),
+  open_router: path.resolve('C:/work/openrouter/open_router'),
   study: path.resolve('C:/work/openrouter/study')
 };
 
