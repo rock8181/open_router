@@ -3,62 +3,111 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OpenRouter Study Document Viewer</title>
+  <title>OpenRouter 학습 문서 뷰어</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <a href="#grid" class="skip-link">문서 그리드로 건너뛰기</a>
+  <a href="#main" class="skip-link">본문 콘텐츠로 건너뛰기</a>
 
-  <div class="layout">
-    <aside class="sidebar glass" aria-label="폴더 네비게이션">
+  <div class="layout" id="layout">
+    <aside class="sidebar glass" id="sidebar" aria-label="폴더 네비게이션">
       <div class="brand glass-panel">
         <h2>OpenRouter</h2>
-        <p>Study Document Viewer</p>
+        <p>학습 문서 뷰어</p>
       </div>
-      <nav class="nav glass-panel">
-        <h3>폴더</h3>
-        <button class="nav-item active glass-item" data-root="open_router" type="button">open_router/doc</button>
-        <button class="nav-item glass-item" data-root="study" type="button">study/01_skill_claude</button>
+      <nav class="nav glass-panel" aria-label="폴더">
+        <h3 class="visually-hidden">폴더</h3>
+        <button class="nav-item active glass-item" id="nav-open_router" data-root="open_router" type="button" aria-label="open_router/doc">open_router/doc</button>
+        <button class="nav-item glass-item" id="nav-study" data-root="study" type="button" aria-label="study/01_skill_claude">study/01_skill_claude</button>
       </nav>
-      <div class="search-box glass-panel">
-        <label for="searchInput" class="visually-hidden">문서 검색</label>
-        <input type="text" id="searchInput" aria-label="문서 검색" placeholder="문서 검색...">
-        <button id="searchBtn" type="button" aria-label="검색 실행">검색</button>
-      </div>
-      <div class="status" id="status" aria-live="polite">준비</div>
+      <section class="search-box glass-panel" aria-label="문서 검색">
+        <form id="searchForm" role="search" onsubmit="return false;">
+          <label for="searchInput">문서 검색</label>
+          <input type="search" id="searchInput" aria-label="문서 검색" placeholder="문서 검색...">
+          <button id="searchBtn" type="button" aria-label="검색 실행">검색</button>
+        </form>
+      </section>
+      <div id="status" class="status" aria-live="polite">준비</div>
     </aside>
 
-    <main class="main">
-      <header class="header glass-panel">
+    <main class="main" id="main">
+      <header class="header glass-panel" id="appHeader">
         <h1 id="pageTitle">문서 목록</h1>
         <div class="breadcrumb" id="breadcrumb"></div>
       </header>
 
-      <div class="toolbar glass-panel">
+      <div class="toolbar glass-panel" id="toolbar" aria-label="도구 모음">
         <button id="addBtn" type="button" class="glass-key" aria-label="추가">+</button>
-        <button id="refreshBtn" type="button">새로고침</button>
-        <span class="divider"></span>
+        <button id="refreshBtn" type="button" aria-label="새로고침">새로고침</button>
+        <span class="divider" aria-hidden="true"></span>
         <span id="docCount" class="glass-label">0개 문서</span>
         <button id="moreBtn" type="button" class="glass-key" aria-label="더보기">···</button>
       </div>
 
-      <div class="grid" id="grid" role="region" aria-label="문서 목록"></div>
-
-      <div class="viewer-overlay glass" id="viewerOverlay" role="dialog" aria-modal="true" aria-labelledby="viewerTitle" aria-hidden="true">
-        <div class="viewer-panel glass-panel">
-          <div class="viewer-header glass-panel">
-            <h2 id="viewerTitle"></h2>
-            <div class="viewer-actions">
-              <button id="copyBtn" type="button">복사</button>
-              <button id="closeViewerBtn" type="button" aria-label="뷰어 닫기">닫기</button>
-            </div>
-          </div>
-          <div class="viewer-content" id="viewerContent"></div>
-        </div>
-      </div>
+      <section class="grid-section" aria-label="문서 목록">
+        <h2 id="gridHeading" class="visually-hidden">문서 목록</h2>
+        <div class="grid" id="grid" role="region" aria-label="문서 목록"></div>
+      </section>
     </main>
   </div>
 
-  <script src="app.js"></script>
+  <div class="viewer-overlay glass" id="viewerOverlay" role="dialog" aria-modal="true" aria-label="문서 뷰어" aria-hidden="true">
+    <div class="viewer-panel glass-panel" id="viewerPanel">
+      <div class="viewer-header glass-panel">
+        <h2 id="viewerTitle"></h2>
+        <div class="viewer-actions">
+          <button id="copyBtn" type="button" aria-label="내용 복사">복사</button>
+          <button id="closeViewerBtn" type="button" aria-label="뷰어 닫기">닫기</button>
+        </div>
+      </div>
+      <div class="viewer-content" id="viewerContent"></div>
+    </div>
+  </div>
+
+  <script src="app.v2.js"></script>
+  <script>
+    (function () {
+      var overlay = document.getElementById('viewerOverlay');
+      if (!overlay) return;
+      var focusable = 'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])';
+      var handler = null;
+      function trap() {
+        var els = overlay.querySelectorAll(focusable);
+        if (els.length === 0) return;
+        var first = els[0];
+        var last = els[els.length - 1];
+        handler = function (e) {
+          if (e.key !== 'Tab') return;
+          if (e.shiftKey) {
+            if (document.activeElement === first || document.activeElement === overlay) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last || document.activeElement === overlay) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        };
+        overlay.addEventListener('keydown', handler);
+        first.focus();
+      }
+      function untrap() {
+        if (handler) {
+          overlay.removeEventListener('keydown', handler);
+          handler = null;
+        }
+      }
+      new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+          if (m.attributeName === 'aria-hidden') {
+            if (overlay.getAttribute('aria-hidden') === 'false') trap();
+            else untrap();
+          }
+        });
+      }).observe(overlay, { attributes: true });
+    })();
+  </script>
 </body>
 </html>

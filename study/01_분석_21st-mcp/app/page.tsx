@@ -2,23 +2,25 @@ import GlassFolder from "@/components/ui/glass-folder-cards"
 
 export default function Page() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6 py-16">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 text-foreground opacity-[0.13]"
-        style={{
-          backgroundImage: "radial-gradient(currentColor 1.1px, transparent 1.4px)",
-          backgroundSize: "22px 22px",
-        }}
-      />
+    <main id="main" className="flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6 py-16">
+      <h1 className="mt-4 mb-10 text-center text-xl font-semibold tracking-tight text-foreground">
+        유리 폴더 카드
+      </h1>
+      <p className="relative mt-1 mb-14 text-base text-center text-muted-foreground">
+        호버하면 폴더가 기울고, 클릭하면 열리며, + 키로 파일을 추가할 수 있어요
+      </p>
       <div className="relative grid max-w-[1180px] grid-cols-1 items-end justify-items-center gap-x-14 gap-y-10 md:grid-cols-2 xl:grid-cols-3">
-        <GlassFolder label="My Files" art="aurora" seed={3} appearDelay={0} />
         <GlassFolder
-          label="Archives"
+          label="나의 파일"
+          art="aurora"
+          seed={3}
+          appear={false}
+        />
+        <GlassFolder
+          label="보관함"
           art="none"
           action="more"
           labelPlacement="top-left"
-          appearDelay={140}
           files={[
             { name: "Lookbook 2024", meta: "38 images", art: "dusk" },
             { name: "Invoices", meta: "12 PDFs" },
@@ -32,14 +34,13 @@ export default function Page() {
           ]}
         />
         <GlassFolder
-          label="Personal Documents"
+          label="개인 문서"
           meta="Wed 19 Aug"
           tone="dark"
           art="ember"
           seed={11}
           action="none"
           labelPlacement="top-right"
-          appearDelay={280}
           files={[
             { name: "Stills", meta: "64 images", art: "verdant" },
             { name: "Edit notes", meta: "TXT · 4 KB" },
@@ -47,10 +48,6 @@ export default function Page() {
           ]}
         />
       </div>
-      <h1 className="sr-only">Glass Folder Cards Demo</h1>
-      <p className="relative mt-14 text-sm text-muted-foreground">
-        Hover to lean, click to open, press + to add
-      </p>
     </main>
   )
 }

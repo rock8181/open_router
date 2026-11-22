@@ -2,31 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * 의미론적 CSS 토큰 (HSL)
+ * 모든 색상은 hsl(var(--토큰)) 형태로 참조하며,
+ * Tailwind의 @apply 또는 arbitrary 값에서 사용합니다.
+ */
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215 20.2% 33.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* 배경 및 전경 */
+    --background: 0 0% 100%;            /* 페이지 배경 (흰색) */
+    --foreground: 222.2 84% 4.9%;       /* 본문 텍스트 (거의 검정) */
+
+    /* 카드 / 팝오버 */
+    --card: 0 0% 100%;                  /* 카드 배경 */
+    --card-foreground: 222.2 84% 4.9%;  /* 카드 텍스트 */
+    --popover: 0 0% 100%;               /* 팝오버 배경 */
+    --popover-foreground: 222.2 84% 4.9%; /* 팝오버 텍스트 */
+
+    /* 브랜드 */
+    --primary: 222.2 47.4% 11.2%;       /* 주 액션 버튼 배경 */
+    --primary-foreground: 210 40% 98%;  /* 주 액션 버튼 텍스트 */
+
+    /* 보조 */
+    --secondary: 210 40% 96.1%;         /* 보조 요소 배경 */
+    --secondary-foreground: 222.2 47.4% 11.2%; /* 보조 요소 텍스트 */
+
+    /* 음소거 ( muted ) */
+    --muted: 210 40% 96.1%;             /* muted 배경 */
+    --muted-foreground: 215 20.2% 40%;  /* muted 텍스트 (흰색 배경 대비 4.5:1 이상 보장) */
+
+    /* 강조 */
+    --accent: 210 40% 96.1%;            /* accent 배경 */
+    --accent-foreground: 222.2 47.4% 11.2%; /* accent 텍스트 */
+
+    /* 파괴적 액션 */
+    --destructive: 0 84.2% 60.2%;       /* 삭제 등 위험 액션 배경 */
+    --destructive-foreground: 210 40% 98%; /* 위험 액션 텍스트 */
+
+    /* 테두리 / 입력 / 포커스 링 */
+    --border: 214.3 31.8% 91.4%;        /* 컴포넌트 테두리 */
+    --input: 214.3 31.8% 91.4%;         /* 입력 필드 테두리 */
+    --ring: 222.2 84% 4.9%;             /* 포커스 표시용 링 색상 */
+
+    /* 둥근 모서리 반경 */
     --radius: 0.5rem;
   }
 
   .dark {
+    /* 다크 모드 토큰 (배경/전경 반전) */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
@@ -53,15 +77,20 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+    /* 기본 타이포그래피 행간: 가독성 확보를 위해 1.5 적용 */
+    line-height: 1.5;
   }
 
+  /* 모든 포커스 가능 요소에 가시적 포커스 링 적용 (접근성) */
   *:focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
   }
 
+  /* 움직임 줄이기 모드: 모든 애니메이션/트랜지션 무력화 */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -74,6 +103,10 @@
   }
 }
 
+/*
+ * 화면 낭독기 전용 콘텐츠 (.sr-only)
+ * 시각적으로는 숨기지만 스크린 리더에는 노출되는 접근성 유틸리티입니다.
+ */
 .sr-only {
   position: absolute;
   width: 1px;
