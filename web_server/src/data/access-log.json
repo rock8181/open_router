@@ -1,0 +1,20 @@
+[
+  {
+    "id": "533fe124-1e56-4eed-b903-87b81d44155b",
+    "documentPath": "__kilo_test_renamed__.md",
+    "accessedAt": "2026-11-22T00:50:44.258Z",
+    "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; ko-KR) WindowsPowerShell/5.1.26100.9711"
+  },
+  {
+    "id": "3c847cba-61ad-41a6-91fa-58049641bf72",
+    "documentPath": "01_apikey.md",
+    "accessedAt": "2026-11-22T00:50:47.047Z",
+    "userAgent": "curl/8.21.0"
+  },
+  {
+    "id": "51521b40-e508-454c-8af5-cc70de00ecad",
+    "documentPath": "01_apikey.md",
+    "accessedAt": "2026-11-22T04:22:36.061Z",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36"
+  }
+]

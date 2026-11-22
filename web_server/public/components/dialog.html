@@ -1,0 +1,245 @@
+<!-- ============================================================
+   OpenRouter Study Document Viewer — Confirmation Dialog Component
+   Path: public/components/dialog.html
+   Design tokens: --color-*, --space-*, --radius-*, --shadow-*, z-index 1000/1010
+   Accessibility: role="dialog", aria-modal="true", aria-labelledby,
+                  aria-describedby, focus trap, Escape close, focus restore,
+                  confirm/cancel buttons, Korean text, promise-based result.
+   Drop-in: call Dialog.init() then Dialog.confirm({title, message}) which
+             resolves true/false.
+   ============================================================ -->
+
+<template id="tmpl-dialog">
+  <div class="dlg-overlay" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-body" aria-hidden="true">
+    <div class="dlg-panel">
+      <h2 id="dlg-title" class="dlg-title"></h2>
+      <p id="dlg-body" class="dlg-body"></p>
+      <div class="dlg-actions">
+        <button class="dlg-btn dlg-btn--cancel" type="button">취소</button>
+        <button class="dlg-btn dlg-btn--confirm" type="button">확인</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .dlg-overlay {
+    position: fixed; inset: 0;
+    background: hsl(var(--color-bg) / 0.45);
+    z-index: 1000;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: var(--space-m);
+    opacity: 0;
+    transition: opacity 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .dlg-overlay[aria-hidden="false"] {
+    display: flex;
+    opacity: 1;
+  }
+  .dlg-panel {
+    background: hsl(var(--color-surface));
+    border: 1px solid hsl(var(--color-border));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass);
+    width: min(440px, 92vw);
+    max-height: 80dvh;
+    overflow: auto;
+    z-index: 1010;
+    transform: scale(0.96);
+    transition: transform 150ms cubic-bezier(0.23, 1, 0.32, 1), opacity 150ms ease;
+    opacity: 0;
+  }
+  .dlg-overlay[aria-hidden="false"] .dlg-panel {
+    transform: scale(1);
+    opacity: 1;
+  }
+  .dlg-title { color: hsl(var(--color-text-primary)); font-size: 1.25rem; margin: 0 0 var(--space-s) 0; padding: var(--space-l) var(--space-xl) var(--space-s) var(--space-xl); }
+  .dlg-body { color: hsl(var(--color-text-secondary)); font-size: 0.9375rem; line-height: 1.6; margin: 0; padding: 0 var(--space-xl) var(--space-l) var(--space-xl); }
+  .dlg-actions { display: flex; justify-content: flex-end; gap: var(--space-s); padding: var(--space-s) var(--space-xl) var(--space-xl) var(--space-xl); }
+  .dlg-btn {
+    padding: 10px 20px; border-radius: var(--radius-md); border: none;
+    cursor: pointer; font-size: 0.9375rem; font-weight: 500;
+    min-width: 44px; min-height: 44px;
+  }
+  .dlg-btn--cancel {
+    background: hsl(var(--color-surface-elev));
+    color: hsl(var(--color-text-primary));
+    border: 1px solid hsl(var(--color-border));
+  }
+  .dlg-btn--cancel:hover { background: hsl(var(--color-border)); }
+  .dlg-btn--confirm {
+    background: hsl(var(--color-accent));
+    color: hsl(var(--color-bg));
+    border: none;
+  }
+  .dlg-btn--confirm:hover { background: hsl(var(--color-accent-hover)); }
+  .dlg-btn:focus-visible {
+    outline: 2px solid hsl(var(--color-focus));
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dlg-overlay, .dlg-panel { transition: none !important; }
+  }
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var ESC_HTML = (function () {
+    var div = document.createElement('div');
+    return function (text) {
+      div.textContent = text;
+      return div.innerHTML;
+    };
+  })();
+
+  var Dialog = {
+    overlay: null,
+    panel: null,
+    titleEl: null,
+    bodyEl: null,
+    cancelBtn: null,
+    confirmBtn: null,
+    trap: null,
+    lastFocused: null,
+    resolve: null,
+    initialized: false,
+
+    focusables: 'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])',
+
+    init: function () {
+      if (this.initialized) return this;
+      var tpl = document.getElementById('tmpl-dialog');
+      if (tpl && !document.getElementById('dlg-overlay')) {
+        document.body.appendChild(document.importNode(tpl.content, true));
+      }
+      this.overlay = document.getElementById('dlg-overlay') || document.querySelector('.dlg-overlay');
+      this.panel = document.getElementById('dlg-panel') || this.overlay.querySelector('.dlg-panel');
+      this.titleEl = document.getElementById('dlg-title');
+      this.bodyEl = document.getElementById('dlg-body');
+      this.cancelBtn = document.getElementById('dlg-cancel') || this.overlay.querySelector('.dlg-btn--cancel');
+      this.confirmBtn = document.getElementById('dlg-confirm') || this.overlay.querySelector('.dlg-btn--confirm');
+      if (!this.overlay) return this;
+
+      var self = this;
+      function trap() {
+        var els = self.overlay.querySelectorAll(self.focusables);
+        if (els.length === 0) return;
+        var first = els[0];
+        var last = els[els.length - 1];
+        self.trap = function (e) {
+          if (e.key !== 'Tab') return;
+          if (e.shiftKey) {
+            if (document.activeElement === first || document.activeElement === self.overlay) {
+              e.preventDefault(); last.focus();
+            }
+          } else {
+            if (document.activeElement === last || document.activeElement === self.overlay) {
+              e.preventDefault(); first.focus();
+            }
+          }
+        };
+        self.overlay.addEventListener('keydown', self.trap);
+        self.cancelBtn.focus();
+      }
+      function untrap() {
+        if (self.trap) {
+          self.overlay.removeEventListener('keydown', self.trap);
+          self.trap = null;
+        }
+      }
+
+      new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+          if (m.attributeName === 'aria-hidden') {
+            if (self.overlay.getAttribute('aria-hidden') === 'false') trap();
+            else untrap();
+          }
+        });
+      }).observe(self.overlay, { attributes: true });
+
+      this.cancelBtn.addEventListener('click', function () { self.resolve(false); self.close(); });
+      this.confirmBtn.addEventListener('click', function () { self.resolve(true); self.close(); });
+      this.overlay.addEventListener('click', function (e) {
+        if (e.target === self.overlay) { self.resolve(false); self.close(); }
+      });
+      this.overlay.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { self.resolve(false); self.close(); }
+      });
+
+      this.initialized = true;
+      return this;
+    },
+
+    confirm: function (opts) {
+      opts = opts || {};
+      this.init();
+      if (!this.overlay) return Promise.resolve(false);
+      var self = this;
+      return new Promise(function (resolve) {
+        self.resolve = resolve;
+        if (self.titleEl) self.titleEl.textContent = opts.title || '확인';
+        if (self.bodyEl) self.bodyEl.textContent = ESC_HTML(opts.message || '계속하시겠습니까?');
+        if (opts.cancelLabel && self.cancelBtn) self.cancelBtn.textContent = opts.cancelLabel;
+        if (opts.confirmLabel && self.confirmBtn) self.confirmBtn.textContent = opts.confirmLabel;
+        self.overlay.setAttribute('aria-hidden', 'false');
+      });
+    },
+
+    alert: function (opts) {
+      opts = opts || {};
+      var self = this;
+      return this.confirm({
+        title: opts.title || '알림',
+        message: opts.message || '',
+        cancelLabel: '확인',
+        confirmLabel: '확인'
+      }).then(function () { return true; });
+    },
+
+    close: function () {
+      if (!this.overlay) return;
+      if (this.trap) {
+        this.overlay.removeEventListener('keydown', this.trap);
+        this.trap = null;
+      }
+      this.overlay.setAttribute('aria-hidden', 'true');
+      if (this.titleEl) this.titleEl.textContent = '';
+      if (this.bodyEl) this.bodyEl.textContent = '';
+      if (this.lastFocused) { this.lastFocused.focus(); this.lastFocused = null; }
+      this.resolve = null;
+    },
+
+    destroy: function () {
+      this.close();
+      this.overlay = null;
+      this.panel = null;
+      this.titleEl = null;
+      this.bodyEl = null;
+      this.cancelBtn = null;
+      this.confirmBtn = null;
+      this.trap = null;
+      this.initialized = false;
+    }
+  };
+
+  window.Dialog = window.Dialog || Dialog;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    Dialog.init();
+  });
+})();
+</script>
+
+<!-- Usage:
+     Dialog.confirm({
+       title: '삭제 확인',
+       message: '이 문서를 삭제하시겠습니까?',
+       cancelLabel: '취소',
+       confirmLabel: '삭제'
+     }).then(function (confirmed) {
+       if (confirmed) { /* delete */ }
+     });
+-->

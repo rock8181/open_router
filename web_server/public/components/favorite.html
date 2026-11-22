@@ -1,0 +1,137 @@
+<!-- ============================================================
+   OpenRouter Study Document Viewer — Star / Favorite Button Component
+   Path: public/components/favorite.html
+   Design tokens: --color-*, --space-*, --radius-*, --shadow-subtle
+   Accessibility: role="button", aria-pressed="true|false", aria-label,
+                  focus-visible, Enter/Space activation, SVG star icon,
+                  Korean text, no emoji.
+   Drop-in: call Favorite.init(buttonElement, options) or mark with data-favorite.
+   ============================================================ -->
+
+<template id="tmpl-favorite">
+  <button class="fb-btn" type="button" role="button" aria-pressed="false" aria-label="즐겨찾기">
+    <span class="fb-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="20" height="20">
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="currentColor"/>
+      </svg>
+    </span>
+    <span class="fb-text">즐겨찾기</span>
+  </button>
+</template>
+
+<style>
+  .fb-btn {
+    display: inline-flex; align-items: center; gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-m); border-radius: var(--radius-md);
+    border: 1px solid hsl(var(--color-border));
+    background: hsl(var(--color-surface));
+    color: hsl(var(--color-text-primary));
+    font-size: 0.875rem; font-weight: 500;
+    cursor: pointer; min-height: 44px;
+    transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+  .fb-btn:hover {
+    border-color: hsl(var(--color-accent));
+    background: hsl(var(--color-surface-elev));
+  }
+  .fb-btn:focus-visible {
+    outline: 2px solid hsl(var(--color-focus));
+    outline-offset: 2px;
+  }
+  .fb-btn[aria-pressed="true"] {
+    background: hsl(var(--color-warning));
+    color: hsl(var(--color-bg));
+    border-color: hsl(var(--color-warning));
+  }
+  .fb-btn[aria-pressed="true"]:hover {
+    background: hsl(var(--color-warning));
+    opacity: 0.9;
+  }
+  .fb-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .fb-text { font-variant-numeric: tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { .fb-btn { transition: none; } }
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var Favorite = {
+    btn: null,
+    pressed: false,
+    onChange: null,
+
+    init: function (btn, options) {
+      options = options || {};
+      this.btn = typeof btn === 'string' ? document.querySelector(btn) : btn;
+      if (!this.btn) return this;
+
+      var tpl = document.getElementById('tmpl-favorite');
+      if (tpl && this.btn.querySelector('.fb-btn') === null && this.btn.innerHTML.trim() === '') {
+        this.btn.innerHTML = '';
+        this.btn.appendChild(document.importNode(tpl.content, true));
+        this.btn = this.btn.querySelector('.fb-btn');
+      }
+      if (!this.btn.classList.contains('fb-btn')) this.btn.classList.add('fb-btn');
+
+      this.pressed = this.btn.getAttribute('aria-pressed') === 'true';
+      this.onChange = options.onChange || null;
+      this.btn.type = 'button';
+
+      var self = this;
+      this.btn.addEventListener('click', function () { self.toggle(); });
+      this.btn.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          self.toggle();
+        }
+      });
+
+      this.sync();
+      return this;
+    },
+
+    toggle: function (force) {
+      var next = arguments.length === 1 ? !!force : !this.pressed;
+      this.pressed = next;
+      this.sync();
+      if (typeof this.onChange === 'function') this.onChange(this.pressed);
+    },
+
+    sync: function () {
+      if (!this.btn) return;
+      this.btn.setAttribute('aria-pressed', String(this.pressed));
+      this.btn.setAttribute('aria-label', this.pressed ? '즐겨찾기 해제' : '즐겨찾기');
+      var text = this.btn.querySelector('.fb-text');
+      if (text) text.textContent = this.pressed ? '즐겨찾기됨' : '즐겨찾기';
+    },
+
+    setPressed: function (pressed) {
+      this.toggle(!!pressed);
+    },
+
+    destroy: function () {
+      if (this.btn) {
+        this.btn.removeEventListener('click', null);
+        this.btn.removeEventListener('keydown', null);
+      }
+      this.btn = null;
+      this.onChange = null;
+    }
+  };
+
+  window.Favorite = window.Favorite || Favorite;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var auto = document.querySelector('[data-favorite]');
+    if (auto) Favorite.init(auto, {});
+  });
+})();
+</script>
+
+<!-- Usage:
+     <button id="fav" data-favorite></button>
+     <script>
+       Favorite.init('#fav', { onChange: function (pressed) { console.log(pressed ? 'added' : 'removed'); } });
+     </script>
+-->

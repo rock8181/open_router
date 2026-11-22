@@ -1,0 +1,143 @@
+<!-- ============================================================
+   OpenRouter Study Document Viewer — Breadcrumb Component
+   Path: public/components/breadcrumb.html
+   Design tokens: --color-*, --space-*, --radius-*
+   Accessibility: nav[aria-label], ol[role="navigation"], aria-current,
+                  focus-visible, Enter/Space activation, Korean text.
+   Drop-in: copy <template>, <style>, <script> into your page;
+             call Breadcrumb.init(container, options) or mark a
+             container with data-breadcrumb.
+   ============================================================ -->
+
+<template id="tmpl-breadcrumb">
+  <nav class="bc-root" aria-label="현재 위치">
+    <ol class="bc-list" role="navigation" aria-label="위치 추적">
+      <li class="bc-item">
+        <a class="bc-link bc-link--root" href="#" data-path="" aria-current="location">홈</a>
+      </li>
+    </ol>
+  </nav>
+</template>
+
+<style>
+  .bc-root { padding: var(--space-s) 0; }
+  .bc-list { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs); margin: 0; padding: 0; list-style: none; }
+  .bc-item { display: flex; align-items: center; }
+  .bc-separator { margin: 0 var(--space-xs); color: hsl(var(--color-text-muted)); font-size: 0.875rem; line-height: 1; user-select: none; }
+  .bc-link { color: hsl(var(--color-text-secondary)); text-decoration: none; font-size: 0.875rem; font-weight: 500; white-space: nowrap; padding: var(--space-xs) var(--space-s); border-radius: var(--radius-sm); }
+  .bc-link:hover { color: hsl(var(--color-accent)); background: hsl(var(--color-surface-elev)); }
+  .bc-link:focus-visible { outline: 2px solid hsl(var(--color-focus)); outline-offset: 2px; }
+  .bc-link--root { color: hsl(var(--color-accent)); font-weight: 600; }
+  .bc-link--root:hover { color: hsl(var(--color-accent-hover)); }
+  .bc-current { color: hsl(var(--color-text-primary)); font-weight: 600; font-size: 0.875rem; white-space: nowrap; padding: var(--space-xs) var(--space-s); border-radius: var(--radius-sm); background: hsl(var(--color-surface-elev)); }
+  .bc-overflow { color: hsl(var(--color-text-muted)); font-size: 0.875rem; padding: 0 var(--space-xs); cursor: default; }
+  @media (prefers-reduced-motion: reduce) {
+    .bc-link { transition: none; }
+  }
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var Breadcrumb = {
+    container: null,
+    listEl: null,
+    onNavigate: null,
+
+    createItem: function (label, path, isCurrent) {
+      var li = document.createElement('li');
+      li.className = 'bc-item';
+      if (isCurrent) {
+        var span = document.createElement('span');
+        span.className = 'bc-current';
+        span.textContent = label;
+        span.setAttribute('aria-current', 'page');
+        li.appendChild(span);
+      } else {
+        var a = document.createElement('a');
+        a.className = 'bc-link' + (path === '' ? ' bc-link--root' : '');
+        a.href = '#';
+        a.dataset.path = path;
+        a.textContent = label;
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          if (typeof Breadcrumb.onNavigate === 'function') {
+            Breadcrumb.onNavigate({ label: label, path: path });
+          }
+        });
+        a.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            a.click();
+          }
+        });
+        li.appendChild(a);
+      }
+      return li;
+    },
+
+    render: function (items) {
+      if (!this.listEl) return;
+      this.listEl.innerHTML = '';
+      items.forEach(function (it, idx) {
+        if (idx > 0) {
+          var sep = document.createElement('li');
+          sep.className = 'bc-separator';
+          sep.setAttribute('aria-hidden', 'true');
+          sep.textContent = '/';
+          this.listEl.appendChild(sep);
+        }
+        this.listEl.appendChild(this.createItem(it.label, it.path, !!it.current));
+      }, this);
+    },
+
+    init: function (container, options) {
+      options = options || {};
+      this.container = typeof container === 'string' ? document.querySelector(container) : container;
+      if (!this.container) return this;
+      this.listEl = this.container.querySelector('.bc-list');
+      if (!this.listEl) {
+        var tpl = document.getElementById('tmpl-breadcrumb');
+        if (tpl) {
+          this.container.innerHTML = '';
+          this.container.appendChild(document.importNode(tpl.content, true));
+          this.listEl = this.container.querySelector('.bc-list');
+        }
+      }
+      this.onNavigate = options.onNavigate || null;
+      if (options.items) this.render(options.items);
+      return this;
+    },
+
+    update: function (items) {
+      this.render(items);
+      return this;
+    },
+
+    destroy: function () {
+      this.container = null;
+      this.listEl = null;
+      this.onNavigate = null;
+    }
+  };
+
+  window.Breadcrumb = window.Breadcrumb || Breadcrumb;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var auto = document.querySelector('[data-breadcrumb]');
+    if (auto) {
+      try {
+        Breadcrumb.init(auto, { items: JSON.parse(auto.getAttribute('data-breadcrumb') || '[]') });
+      } catch (e) {
+        Breadcrumb.init(auto, { items: [] });
+      }
+    }
+  });
+})();
+</script>
+
+<!-- Usage:
+     <nav id="bc" data-breadcrumb='[{"label":"홈","path":""},{"label":"open_router/doc","path":"open_router"},{"label":"01_skill_claude","path":"open_router/01_skill_claude","current":true}]'></nav>
+     <script>Breadcrumb.init('#bc', { onNavigate: function (item) { /* navigate */ } });</script>
+-->

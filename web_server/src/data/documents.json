@@ -1,0 +1,47 @@
+[
+  {
+    "id": "c0ec25df-215f-42b0-ba67-fed86eac8595",
+    "name": "01_intro.md",
+    "path": "open_router/doc/01_intro.md",
+    "type": "file",
+    "size": 1234,
+    "modifiedAt": "2026-11-20T10:00:00Z",
+    "createdAt": "2026-11-19T10:00:00Z",
+    "tags": [
+      "30c6db1f-29f5-4f73-a653-74323d7cacf5"
+    ],
+    "favorite": true,
+    "accessCount": 0,
+    "lastAccessed": null,
+    "root": "open_router"
+  },
+  {
+    "id": "c9588995-c093-4e20-bda2-0ff4543fc947",
+    "name": "__kilo_test_renamed__.md",
+    "path": "__kilo_test_renamed__.md",
+    "type": "file",
+    "size": 50,
+    "modifiedAt": "2026-11-22T00:49:28.952Z",
+    "createdAt": "2026-11-22T00:50:44.254Z",
+    "tags": [],
+    "favorite": false,
+    "accessCount": 1,
+    "lastAccessed": "2026-11-22T00:50:44.256Z",
+    "root": "open_router"
+  },
+  {
+    "id": "968976c6-05a0-4573-b231-68b233ef4d2d",
+    "name": "01_apikey.md",
+    "path": "01_apikey.md",
+    "type": "file",
+    "size": 490,
+    "modifiedAt": "2026-11-21T14:59:22.026Z",
+    "createdAt": "2026-11-22T00:50:47.042Z",
+    "tags": [],
+    "favorite": false,
+    "accessCount": 2,
+    "lastAccessed": "2026-11-22T04:22:36.057Z",
+    "root": "open_router",
+    "updatedAt": "2026-11-22T04:22:36.053Z"
+  }
+]

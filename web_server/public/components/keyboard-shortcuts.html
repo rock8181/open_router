@@ -1,0 +1,281 @@
+<!-- ============================================================
+   OpenRouter Study Document Viewer — Keyboard Shortcuts Hint Modal
+   Path: public/components/keyboard-shortcuts.html
+   Design tokens: --color-*, --space-*, --radius-*, --shadow-*, z-index 1000/1010
+   Accessibility: role="dialog", aria-modal="true", aria-labelledby,
+                  focus trap, Escape close, <kbd> elements, table layout,
+                  Korean text.
+   Drop-in: call KbdShortcuts.init(options) then KbdShortcuts.open().
+   ============================================================ -->
+
+<template id="tmpl-kbd-shortcuts">
+  <div class="ks-overlay" role="dialog" aria-modal="true" aria-labelledby="ks-title" aria-hidden="true">
+    <div class="ks-panel">
+      <div class="ks-header">
+        <h2 id="ks-title" class="ks-title">키보드 단축키</h2>
+        <button class="ks-close" type="button" aria-label="닫기">닫기</button>
+      </div>
+      <div class="ks-body">
+        <table class="ks-table" aria-label="단축키 목록">
+          <thead>
+            <tr><th scope="col">작업</th><th scope="col">단축키</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .ks-overlay {
+    position: fixed; inset: 0;
+    background: hsl(var(--color-bg) / 0.45);
+    z-index: 1000;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: var(--space-m);
+    opacity: 0;
+    transition: opacity 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .ks-overlay[aria-hidden="false"] {
+    display: flex;
+    opacity: 1;
+  }
+  .ks-panel {
+    background: hsl(var(--color-surface));
+    border: 1px solid hsl(var(--color-border));
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass);
+    width: min(560px, 92vw);
+    max-height: 80dvh;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    z-index: 1010;
+    transform: scale(0.96);
+    transition: transform 150ms cubic-bezier(0.23, 1, 0.32, 1), opacity 150ms ease;
+    opacity: 0;
+  }
+  .ks-overlay[aria-hidden="false"] .ks-panel {
+    transform: scale(1);
+    opacity: 1;
+  }
+  .ks-header { display: flex; justify-content: space-between; align-items: center; padding: var(--space-l) var(--space-xl); border-bottom: 1px solid hsl(var(--color-border)); }
+  .ks-title { color: hsl(var(--color-text-primary)); font-size: 1.25rem; margin: 0; }
+  .ks-close {
+    width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+    border-radius: var(--radius-md); border: 1px solid hsl(var(--color-border));
+    background: hsl(var(--color-surface-elev));
+    color: hsl(var(--color-text-primary)); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9375rem;
+  }
+  .ks-close:hover { background: hsl(var(--color-border)); }
+  .ks-close:focus-visible {
+    outline: 2px solid hsl(var(--color-focus));
+    outline-offset: 2px;
+  }
+  .ks-body { padding: var(--space-xl); overflow-y: auto; }
+  .ks-table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+  .ks-table th {
+    text-align: left; color: hsl(var(--color-text-muted)); font-weight: 600;
+    font-size: 0.75rem; letter-spacing: 0.05em; padding: var(--space-xs) var(--space-m);
+    border-bottom: 1px solid hsl(var(--color-border));
+  }
+  .ks-table td { padding: var(--space-m); border-bottom: 1px solid hsl(var(--color-border)); color: hsl(var(--color-text-primary)); }
+  .ks-table tr:last-child td { border-bottom: none; }
+  .ks-table tr:hover td { background: hsl(var(--color-surface-elev)); }
+  .ks-kbd {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 32px; height: 26px; padding: 0 var(--space-s);
+    border-radius: var(--radius-sm); border: 1px solid hsl(var(--color-border));
+    background: hsl(var(--color-bg));
+    color: hsl(var(--color-text-primary));
+    font-size: 0.8125rem; font-weight: 600;
+    font-family: var(--font-mono, monospace);
+    box-shadow: 0 1px 2px hsl(var(--color-text-primary) / 0.06);
+  }
+  @media (prefers-reduced-motion: reduce) { .ks-overlay, .ks-panel { transition: none !important; } }
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var ESC_HTML = (function () {
+    var div = document.createElement('div');
+    return function (text) {
+      div.textContent = text;
+      return div.innerHTML;
+    };
+  })();
+
+  var KbdShortcuts = {
+    overlay: null,
+    panel: null,
+    closeBtn: null,
+    tbody: null,
+    trap: null,
+    lastFocused: null,
+    shortcuts: [],
+    initialized: false,
+
+    focusables: 'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])',
+
+    defaultShortcuts: [
+      { action: '문서 뷰어 열기', key: 'Enter', hint: '카드 포커스 시' },
+      { action: '검색 포커스', key: '/', hint: '전체에서 사용 가능' },
+      { action: '검색 실행', key: 'Enter', hint: '검색 입력 후' },
+      { action: '검색 결과 이동', key: '↑ / ↓', hint: '인라인 결과 목록' },
+      { action: '검색 결과 선택', key: 'Enter', hint: '포커스된 결과' },
+      { action: '모달/뷰어 닫기', key: 'Escape', hint: '열려 있는 모든 오버레이' },
+      { action: '즐겨찾기 토글', key: 'F', hint: '문서 카드 포커스 시' },
+      { action: '단축키 도움말', key: '?', hint: '이 모달 표시' }
+    ],
+
+    init: function (options) {
+      options = options || {};
+      if (this.initialized) return this;
+      var tpl = document.getElementById('tmpl-kbd-shortcuts');
+      if (tpl && !document.getElementById('ks-overlay')) {
+        document.body.appendChild(document.importNode(tpl.content, true));
+      }
+      this.overlay = document.getElementById('ks-overlay') || document.querySelector('.ks-overlay');
+      this.panel = document.getElementById('ks-panel') || this.overlay.querySelector('.ks-panel');
+      this.closeBtn = document.getElementById('ks-close') || this.overlay.querySelector('.ks-close');
+      this.tbody = document.getElementById('ks-tbody') || this.overlay.querySelector('.ks-table tbody');
+      if (!this.overlay) return this;
+
+      this.shortcuts = options.shortcuts || this.defaultShortcuts;
+
+      var self = this;
+      function trap() {
+        var els = self.overlay.querySelectorAll(self.focusables);
+        if (els.length === 0) return;
+        var first = els[0];
+        var last = els[els.length - 1];
+        self.trap = function (e) {
+          if (e.key !== 'Tab') return;
+          if (e.shiftKey) {
+            if (document.activeElement === first || document.activeElement === self.overlay) {
+              e.preventDefault(); last.focus();
+            }
+          } else {
+            if (document.activeElement === last || document.activeElement === self.overlay) {
+              e.preventDefault(); first.focus();
+            }
+          }
+        };
+        self.overlay.addEventListener('keydown', self.trap);
+        self.closeBtn.focus();
+      }
+      function untrap() {
+        if (self.trap) {
+          self.overlay.removeEventListener('keydown', self.trap);
+          self.trap = null;
+        }
+      }
+
+      new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+          if (m.attributeName === 'aria-hidden') {
+            if (self.overlay.getAttribute('aria-hidden') === 'false') trap();
+            else untrap();
+          }
+        });
+      }).observe(self.overlay, { attributes: true });
+
+      this.closeBtn.addEventListener('click', function () { self.close(); });
+      this.overlay.addEventListener('click', function (e) {
+        if (e.target === self.overlay) self.close();
+      });
+      this.overlay.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') self.close();
+      });
+
+      this.render();
+      this.initialized = true;
+      return this;
+    },
+
+    render: function () {
+      if (!this.tbody) return;
+      this.tbody.innerHTML = '';
+      this.shortcuts.forEach(function (it) {
+        var tr = document.createElement('tr');
+        var keyHtml = String(it.key).split(' + ').map(function (part) {
+          return '<kbd class="ks-kbd">' + ESC_HTML(part) + '</kbd>';
+        }).join('');
+        tr.innerHTML =
+          '<td>' + ESC_HTML(it.action) + (it.hint ? ' <span style="font-size:0.75rem;color:hsl(var(--color-text-muted));font-weight:400;"> (' + ESC_HTML(it.hint) + ')</span>' : '') + '</td>' +
+          '<td style="white-space:nowrap;">' + keyHtml + '</td>';
+        this.tbody.appendChild(tr);
+      }, this);
+    },
+
+    open: function (options) {
+      if (options) {
+        if (options.shortcuts) this.shortcuts = options.shortcuts;
+        this.render();
+      }
+      this.init();
+      if (!this.overlay) return;
+      this.lastFocused = document.activeElement;
+      this.overlay.setAttribute('aria-hidden', 'false');
+    },
+
+    close: function () {
+      if (!this.overlay) return;
+      if (this.trap) {
+        this.overlay.removeEventListener('keydown', this.trap);
+        this.trap = null;
+      }
+      this.overlay.setAttribute('aria-hidden', 'true');
+      if (this.lastFocused) { this.lastFocused.focus(); this.lastFocused = null; }
+    },
+
+    setShortcuts: function (shortcuts) {
+      this.shortcuts = shortcuts || [];
+      this.render();
+      return this;
+    },
+
+    destroy: function () {
+      this.close();
+      this.overlay = null;
+      this.panel = null;
+      this.closeBtn = null;
+      this.tbody = null;
+      this.trap = null;
+      this.lastFocused = null;
+      this.shortcuts = [];
+      this.initialized = false;
+    }
+  };
+
+  window.KbdShortcuts = window.KbdShortcuts || KbdShortcuts;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    KbdShortcuts.init();
+    // Global '?' shortcut to open hints
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '?' && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+        var active = document.activeElement;
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) return;
+        e.preventDefault();
+        KbdShortcuts.open();
+      }
+    });
+  });
+})();
+</script>
+
+<!-- Usage:
+     KbdShortcuts.open();
+     KbdShortcuts.setShortcuts([
+       { action: '문서 뷰어 열기', key: 'Enter', hint: '카드 포커스 시' },
+       { action: '검색 포커스', key: '/', hint: '전체에서 사용 가능' }
+     ]);
+     // '?' key globally opens this modal (auto-registered on load).
+-->

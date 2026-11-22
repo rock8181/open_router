@@ -11,11 +11,12 @@
 
   <div class="layout" id="layout">
     <aside class="sidebar glass" id="sidebar" aria-label="폴더 네비게이션">
+      <button class="sidebar-toggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="sidebar-nav">≡</button>
       <div class="brand glass-panel">
         <h2>OpenRouter</h2>
         <p>학습 문서 뷰어</p>
       </div>
-      <nav class="nav glass-panel" aria-label="폴더">
+      <nav class="nav glass-panel" id="sidebar-nav" aria-label="폴더">
         <h3 class="visually-hidden">폴더</h3>
         <button class="nav-item active glass-item" id="nav-open_router" data-root="open_router" type="button" aria-label="open_router/doc">open_router/doc</button>
         <button class="nav-item glass-item" id="nav-study" data-root="study" type="button" aria-label="study/01_skill_claude">study/01_skill_claude</button>
@@ -32,22 +33,51 @@
 
     <main class="main" id="main">
       <header class="header glass-panel" id="appHeader">
-        <h1 id="pageTitle">문서 목록</h1>
+        <div class="header-top">
+          <h1 id="pageTitle">문서 목록</h1>
+          <div class="view-toggle" aria-label="보기 모드">
+            <button type="button" class="view-btn active" data-view="grid" aria-pressed="true" title="그리드 보기">그리드</button>
+            <button type="button" class="view-btn" data-view="list" aria-pressed="false" title="목록 보기">목록</button>
+          </div>
+          <div class="sort-controls">
+            <label for="sortSelect" class="visually-hidden">정렬 기준</label>
+            <select id="sortSelect" aria-label="정렬 기준">
+              <option value="name">이름 순</option>
+              <option value="date">수정일 순</option>
+              <option value="size">크기 순</option>
+            </select>
+            <span class="sort-indicator" aria-hidden="true">▼</span>
+          </div>
+          <button id="themeToggle" type="button" class="theme-toggle" aria-label="테마 전환" title="다크/라이트 모드 전환">
+            <span class="theme-icon" aria-hidden="true">🌙</span>
+            <span class="visually-hidden" id="themeLabel">다크 모드로 전환</span>
+          </button>
+        </div>
         <div class="breadcrumb" id="breadcrumb"></div>
       </header>
 
       <div class="toolbar glass-panel" id="toolbar" aria-label="도구 모음">
-        <button id="addBtn" type="button" class="glass-key" aria-label="추가">+</button>
-        <button id="refreshBtn" type="button" aria-label="새로고침">새로고침</button>
+        <button id="addBtn" type="button" class="glass-key" aria-label="추가" data-tooltip="새 문서/폴더 추가">+</button>
+        <button id="refreshBtn" type="button" aria-label="새로고침" data-tooltip="목록 새로고침">새로고침</button>
         <span class="divider" aria-hidden="true"></span>
         <span id="docCount" class="glass-label">0개 문서</span>
-        <button id="moreBtn" type="button" class="glass-key" aria-label="더보기">···</button>
+        <button id="moreBtn" type="button" class="glass-key" aria-label="더보기" data-tooltip="추가 작업">···</button>
       </div>
 
       <section class="grid-section" aria-label="문서 목록">
         <h2 id="gridHeading" class="visually-hidden">문서 목록</h2>
         <div class="grid" id="grid" role="region" aria-label="문서 목록"></div>
       </section>
+
+      <section class="recent-section glass-panel" id="recentSection" aria-label="최근 문서">
+        <div class="section-header">
+          <h2 class="section-title">최근 문서</h2>
+          <a href="#" class="section-link">모두 보기</a>
+        </div>
+        <div class="recent-grid" id="recentGrid"></div>
+      </section>
+
+      <nav class="pagination" id="pagination" aria-label="페이지네이션"></nav>
     </main>
   </div>
 
@@ -56,6 +86,7 @@
       <div class="viewer-header glass-panel">
         <h2 id="viewerTitle"></h2>
         <div class="viewer-actions">
+          <button id="starBtn" type="button" class="star-btn" aria-label="즐겨찾기" title="즐겨찾기">☆</button>
           <button id="copyBtn" type="button" aria-label="내용 복사">복사</button>
           <button id="closeViewerBtn" type="button" aria-label="뷰어 닫기">닫기</button>
         </div>
@@ -64,7 +95,28 @@
     </div>
   </div>
 
-  <script src="app.v2.js"></script>
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="dialog-overlay" id="dialogOverlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="dialog glass-panel" id="confirmDialog">
+      <h3 id="dialogTitle">확인</h3>
+      <p id="dialogMessage"></p>
+      <div class="dialog-actions">
+        <button id="dialogCancel" type="button" class="dialog-btn">취소</button>
+        <button id="dialogConfirm" type="button" class="dialog-btn dialog-btn-confirm">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="keyboard-hints" id="keyboardHints" aria-hidden="true">
+    <div class="hint"><kbd>?</kbd> 단축키 도움말</div>
+    <div class="hint"><kbd>Esc</kbd> 닫기</div>
+    <div class="hint"><kbd>/</kbd> 검색</div>
+    <div class="hint"><kbd>↑↓</kbd> 이동</div>
+    <div class="hint"><kbd>Enter</kbd> 열기</div>
+  </div>
+
+  <script src="app.js"></script>
   <script>
     (function () {
       var overlay = document.getElementById('viewerOverlay');

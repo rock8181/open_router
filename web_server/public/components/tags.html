@@ -1,0 +1,191 @@
+<!-- ============================================================
+   OpenRouter Study Document Viewer — Tag Chip Component
+   Path: public/components/tags.html
+   Design tokens: --color-*, --space-*, --radius-*
+   Accessibility: role="button", aria-pressed, aria-label, focus-visible,
+                  Enter/Space activation, remove button, Korean text.
+   Drop-in: call Tags.init(container, options) or mark with data-tags.
+   ============================================================ -->
+
+<template id="tmpl-tags">
+  <div class="tc-root" role="group" aria-label="태그">
+    <span class="tc-label" hidden>태그</span>
+    <div class="tc-list"></div>
+  </div>
+</template>
+
+<style>
+  .tc-root { display: flex; flex-wrap: wrap; gap: var(--space-xs); align-items: center; }
+  .tc-label { font-size: 0.75rem; font-weight: 600; color: hsl(var(--color-text-muted)); }
+  .tc-list { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin: 0; padding: 0; list-style: none; }
+  .tc-chip {
+    display: inline-flex; align-items: center; gap: var(--space-xs);
+    padding: 2px var(--space-s); border-radius: var(--radius-full);
+    border: 1px solid hsl(var(--color-border));
+    background: hsl(var(--color-surface-elev));
+    color: hsl(var(--color-text-primary));
+    font-size: 0.8125rem; font-weight: 500;
+    cursor: default; min-height: 28px;
+  }
+  .tc-chip[aria-pressed="true"] {
+    background: hsl(var(--color-accent));
+    color: hsl(var(--color-bg));
+    border-color: hsl(var(--color-accent));
+  }
+  .tc-chip--removable { cursor: pointer; padding-right: var(--space-xs); }
+  .tc-chip--removable[aria-pressed="true"] { background: hsl(var(--color-accent-hover)); }
+  .tc-remove {
+    width: 20px; height: 20px; min-width: 20px; min-height: 20px;
+    border-radius: var(--radius-full); border: none; background: transparent;
+    color: inherit; font-size: 1rem; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0.7;
+  }
+  .tc-remove:hover { opacity: 1; background: hsl(var(--color-border) / 0.5); }
+  .tc-remove:focus-visible {
+    outline: 2px solid hsl(var(--color-focus));
+    outline-offset: 2px;
+  }
+  .tc-remove svg { width: 14px; height: 14px; fill: currentColor; }
+  @media (prefers-reduced-motion: reduce) { .tc-chip { transition: none; } }
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var ESC_HTML = (function () {
+    var div = document.createElement('div');
+    return function (text) {
+      div.textContent = text;
+      return div.innerHTML;
+    };
+  })();
+
+  var Tags = {
+    container: null,
+    list: null,
+    onChange: null,
+    onRemove: null,
+    items: [],
+
+    init: function (container, options) {
+      options = options || {};
+      this.container = typeof container === 'string' ? document.querySelector(container) : container;
+      if (!this.container) return this;
+
+      var tpl = document.getElementById('tmpl-tags');
+      if (tpl && !this.container.querySelector('.tc-root')) {
+        this.container.innerHTML = '';
+        this.container.appendChild(document.importNode(tpl.content, true));
+      }
+
+      this.list = this.container.querySelector('.tc-list');
+      this.onChange = options.onChange || null;
+      this.onRemove = options.onRemove || null;
+
+      if (!this.list) return this;
+
+      var self = this;
+      this.list.addEventListener('click', function (e) {
+        var chip = e.target.closest('.tc-chip');
+        if (!chip) return;
+        var remove = e.target.closest('.tc-remove');
+        if (remove) {
+          e.stopPropagation();
+          e.preventDefault();
+          var idx = Number(chip.dataset.index);
+          self.remove(idx);
+          return;
+        }
+        self.toggle(idx);
+      });
+      this.list.addEventListener('keydown', function (e) {
+        if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.tc-chip')) {
+          e.preventDefault();
+          var idx = Number(e.target.closest('.tc-chip').dataset.index);
+          self.toggle(idx);
+        }
+      });
+
+      if (options.items) this.render(options.items);
+      return this;
+    },
+
+    render: function (items) {
+      this.items = items || [];
+      if (!this.list) return;
+      this.list.innerHTML = '';
+      this.items.forEach(function (it, idx) {
+        var pressed = !!it.selected;
+        var chip = document.createElement('button');
+        chip.className = 'tc-chip tc-chip--removable';
+        chip.setAttribute('role', 'button');
+        chip.setAttribute('aria-pressed', String(pressed));
+        chip.setAttribute('aria-label', it.label + (pressed ? ', 선택됨' : '') + (it.removable !== false ? ', 제거' : ''));
+        chip.dataset.index = idx;
+        chip.type = 'button';
+        chip.innerHTML =
+          '<span class="tc-chip-label">' + ESC_HTML(it.label) + '</span>' +
+          (it.removable !== false
+            ? '<button class="tc-remove" type="button" aria-label="태그 제거"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 3L21 6L15 12L21 18L18 21L12 15L6 21L3 18L9 12L3 6L6 3L12 9z"/></svg></button>'
+            : '');
+        this.list.appendChild(chip);
+      }, this);
+      if (typeof this.onChange === 'function') this.onChange(this.items);
+    },
+
+    toggle: function (idx) {
+      var item = this.items[idx];
+      if (!item) return;
+      item.selected = !item.selected;
+      var chip = this.list.querySelector('.tc-chip[data-index="' + idx + '"]');
+      if (chip) chip.setAttribute('aria-pressed', String(item.selected));
+      if (typeof this.onChange === 'function') this.onChange(this.items);
+    },
+
+    remove: function (idx) {
+      var removed = this.items.splice(idx, 1);
+      this.render(this.items);
+      if (typeof this.onRemove === 'function') this.onRemove(removed[0]);
+      if (typeof this.onChange === 'function') this.onChange(this.items);
+    },
+
+    update: function (items) {
+      this.render(items);
+      return this;
+    },
+
+    destroy: function () {
+      this.container = null;
+      this.list = null;
+      this.onChange = null;
+      this.onRemove = null;
+      this.items = [];
+    }
+  };
+
+  window.Tags = window.Tags || Tags;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var auto = document.querySelector('[data-tags]');
+    if (auto) {
+      try {
+        Tags.init(auto, { items: JSON.parse(auto.getAttribute('data-tags') || '[]') });
+      } catch (e) {
+        Tags.init(auto, { items: [] });
+      }
+    }
+  });
+})();
+</script>
+
+<!-- Usage:
+     <div id="tag-group" data-tags='[{"label":"문서","selected":true},{"label":"공부"},{"label":"참고","removable":false}]'></div>
+     <script>
+       Tags.init('#tag-group', {
+         onChange: function (items) { console.log(items); },
+         onRemove: function (item) { console.log('removed', item.label); }
+       });
+     </script>
+-->

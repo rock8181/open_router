@@ -1,0 +1,309 @@
+<!-- ============================================================
+   OpenRouter Study Document Viewer — Glass Folder Card Component
+   Path: public/components/card.html
+   Design tokens: --color-*, --space-*, --radius-*, --shadow-*, --blur-md
+   Accessibility: role="button", tabindex="0", aria-label, aria-expanded,
+                  focus-visible, Enter/Space activation, 44px touch targets,
+                  Korean text, reduced-motion safe.
+   Drop-in: call Card.create(item, handlers) to build an element, or
+             Card.init(existingElement, handlers) to enhance markup.
+   ============================================================ -->
+
+<template id="tmpl-card">
+  <div class="gfc-root" role="button" tabindex="0" aria-expanded="false">
+    <div class="gfc-stage" aria-hidden="true">
+      <div class="gfc-back"></div>
+      <div class="gfc-front">
+        <div class="gfc-files">
+          <div class="gfc-sheet">
+            <div class="gfc-label">
+              <span class="gfc-badge">파일</span>
+              <h3 class="gfc-title">문서 제목</h3>
+              <div class="gfc-meta">메타 정보</div>
+            </div>
+            <div class="gfc-toolbar">
+              <button class="gfc-btn gfc-btn--add" type="button" aria-label="추가">+</button>
+              <button class="gfc-btn gfc-btn--more" type="button" aria-label="더보기">···</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .gfc-root {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: hsl(var(--color-surface));
+    border: 1px solid hsl(var(--color-border));
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 200ms ease, border-color 150ms ease;
+  }
+  .gfc-root:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-deep);
+    border-color: hsl(var(--color-accent));
+  }
+  .gfc-root:focus-visible {
+    outline: 2px solid hsl(var(--color-focus));
+    outline-offset: 4px;
+    box-shadow: var(--shadow-deep);
+    border-color: hsl(var(--color-focus));
+  }
+  .gfc-stage { position: relative; width: 100%; height: 100%; }
+  .gfc-back, .gfc-front {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    border-radius: var(--radius-md);
+    border: 1px solid hsl(var(--color-border));
+    background: hsl(var(--color-surface));
+    box-shadow: var(--shadow-subtle);
+    backdrop-filter: var(--blur-md);
+    -webkit-backdrop-filter: var(--blur-md);
+  }
+  .gfc-back {
+    background: linear-gradient(135deg, hsl(var(--color-surface-elev)), hsl(var(--color-bg)));
+    z-index: 1;
+  }
+  .gfc-front {
+    background: linear-gradient(135deg, hsl(var(--color-accent) / 0.1), hsl(var(--color-accent) / 0.05));
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 200ms ease, transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .gfc-root.open .gfc-front, .gfc-root[data-open="true"] .gfc-front {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+  .gfc-files {
+    position: absolute; inset: var(--space-l);
+    display: flex; flex-direction: column; gap: var(--space-s);
+    pointer-events: none;
+  }
+  .gfc-sheet {
+    position: absolute; width: 100%; height: 72px; border-radius: var(--radius-md);
+    border: 1px solid hsl(var(--color-border));
+    background: hsl(var(--color-surface));
+    box-shadow: var(--shadow-subtle);
+    overflow: hidden; pointer-events: auto; cursor: pointer;
+    transform-origin: left center;
+    transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 200ms ease, border-color 150ms ease;
+  }
+  .gfc-sheet:nth-child(1) { top: var(--space-s); transform: scale(0.98) translateX(2px); }
+  .gfc-sheet:nth-child(2) { top: 90px; transform: scale(0.96) translateX(6px); }
+  .gfc-sheet:nth-child(3) { top: 164px; transform: scale(0.94) translateX(10px); }
+  .gfc-sheet:hover {
+    z-index: 5;
+    transform: scale(1.02) translateX(14px);
+    box-shadow: 0 12px 24px hsl(var(--color-accent) / 0.2);
+    border-color: hsl(var(--color-accent));
+  }
+  .gfc-label {
+    position: absolute; left: var(--space-m); right: var(--space-m); bottom: var(--space-m);
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
+  .gfc-badge {
+    display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm);
+    font-size: 0.65rem; font-weight: 600; margin-bottom: var(--space-xs);
+    background: hsl(var(--color-border)); color: hsl(var(--color-text-secondary));
+  }
+  .gfc-title { font-size: 0.875rem; font-weight: 600; letter-spacing: 0.02em; color: hsl(var(--color-text-primary)); margin: 0; }
+  .gfc-meta { font-size: 0.75rem; color: hsl(var(--color-text-muted)); margin-top: 2px; }
+  .gfc-toolbar {
+    position: absolute; right: var(--space-m); bottom: var(--space-m);
+    display: flex; gap: var(--space-xs);
+  }
+  .gfc-btn {
+    width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+    border-radius: var(--radius-md);
+    border: 1px solid hsl(var(--color-border));
+    background: hsl(var(--color-surface));
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1.25rem;
+    transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+  .gfc-btn:hover {
+    background: hsl(var(--color-accent));
+    color: hsl(var(--color-bg));
+    border-color: hsl(var(--color-accent));
+  }
+  .gfc-btn:focus-visible {
+    outline: 2px solid hsl(var(--color-focus));
+    outline-offset: 2px;
+  }
+  .gfc-toolbar .gfc-btn--add { margin-left: auto; }
+  @media (prefers-reduced-motion: reduce) {
+    .gfc-root, .gfc-sheet, .gfc-front, .gfc-btn { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var ESC_HTML = (function () {
+    var div = document.createElement('div');
+    return function (text) {
+      div.textContent = text;
+      return div.innerHTML;
+    };
+  })();
+
+  var Card = {
+    create: function (item, handlers) {
+      handlers = handlers || {};
+      var isDir = item.type === 'directory';
+      var path = item.path || item.file || '';
+      var name = ESC_HTML(item.name || '');
+
+      var card = document.createElement('div');
+      card.className = 'gfc-root type-' + (isDir ? 'directory' : 'file');
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', item.name || '');
+      card.setAttribute('aria-expanded', 'false');
+      card.dataset.path = path;
+      card.dataset.type = isDir ? 'directory' : 'file';
+
+      var metaText;
+      if (item.root) {
+        metaText = '[' + ESC_HTML(String(item.root)) + '] ' + ESC_HTML(String(path));
+        if (item.snippet) metaText += ' | ';
+      } else if (isDir) {
+        metaText = '폴더';
+        if (item.modifiedAt) metaText += ' | ' + new Date(item.modifiedAt).toLocaleDateString('ko-KR');
+      } else {
+        metaText = '크기: ' + (function (bytes) {
+          if (bytes === 0) return '0 B';
+          var k = 1024, sizes = ['B', 'KB', 'MB', 'GB'], i = Math.floor(Math.log(bytes) / Math.log(k));
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        })(item.size);
+        if (item.modifiedAt) metaText += ' | ' + new Date(item.modifiedAt).toLocaleDateString('ko-KR');
+      }
+
+      var snippetHtml = (item.root && item.snippet)
+        ? '<div style="margin-top:8px;font-size:0.85rem;color:hsl(var(--color-text-muted));">' + ESC_HTML(item.snippet) + '</div>'
+        : '';
+
+      card.innerHTML =
+        '<div class="gfc-stage" aria-hidden="true">' +
+        '  <div class="gfc-back"></div>' +
+        '  <div class="gfc-front">' +
+        '    <div class="gfc-files">' +
+        '      <div class="gfc-sheet">' +
+        '        <div class="gfc-label">' +
+        '          <span class="gfc-badge">' + (isDir ? '폴더' : '파일') + '</span>' +
+        '          <h3 class="gfc-title">' + name + '</h3>' +
+        '          <div class="gfc-meta">' + ESC_HTML(metaText) + '</div>' +
+        snippetHtml +
+        '        </div>' +
+        '        <div class="gfc-toolbar">' +
+        '          <button class="gfc-btn gfc-btn--add" type="button" aria-label="추가">+</button>' +
+        '          <button class="gfc-btn gfc-btn--more" type="button" aria-label="더보기">···</button>' +
+        '        </div>' +
+        '      </div>' +
+        '    </div>' +
+        '  </div>' +
+        '</div>';
+
+      var cleanup = null;
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        card.style.animation = 'gfcEnter 0.5s ease forwards';
+        card.style.animationDelay = ((handlers.index || 0) * 0.06) + 's';
+        card.style.opacity = '0';
+      } else {
+        card.style.opacity = '1';
+      }
+
+      var onAction = function () {
+        if (isDir) {
+          if (typeof handlers.onOpenDir === 'function') handlers.onOpenDir({ path: path, name: item.name });
+        } else {
+          if (typeof handlers.onOpenFile === 'function') handlers.onOpenFile({ path: path, name: item.name });
+        }
+      };
+
+      card.addEventListener('click', onAction);
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onAction();
+        }
+      });
+
+      var addBtn = card.querySelector('.gfc-btn--add');
+      var moreBtn = card.querySelector('.gfc-btn--more');
+
+      addBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (typeof handlers.onAdd === 'function') handlers.onAdd({ path: path, name: item.name });
+      });
+
+      moreBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (typeof handlers.onMore === 'function') handlers.onMore({ path: path, name: item.name, isDir: isDir });
+      });
+
+      cleanup = function () {
+        card.removeEventListener('click', onAction);
+        card.removeEventListener('keydown', arguments.callee || null);
+        addBtn.removeEventListener('click', arguments.callee || null);
+        moreBtn.removeEventListener('click', arguments.callee || null);
+      };
+
+      return { element: card, destroy: cleanup };
+    },
+
+    init: function (el, handlers) {
+      // Enhance existing .gfc-root markup with behavior + ARIA.
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-expanded', 'false');
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          el.click();
+        }
+      });
+      return { element: el, destroy: function () {
+        el.removeAttribute('role');
+        el.removeAttribute('tabindex');
+        el.removeAttribute('aria-expanded');
+      }};
+    },
+
+    destroy: function () { /* no-op placeholder */ }
+  };
+
+  window.Card = window.Card || Card;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var style = document.createElement('style');
+    style.textContent =
+      '@keyframes gfcEnter {' +
+      '  0% { opacity: 0; transform: translateY(20px); }' +
+      '  100% { opacity: 1; transform: translateY(0); }' +
+      '}';
+    document.head.appendChild(style);
+  });
+})();
+</script>
+
+<!-- Usage:
+     var c = Card.create({ name: '01_skill_claude.md', type: 'file', path: 'open_router/01_skill_claude.md', size: 1234 }, {
+       onOpenFile: function (item) { console.log('open', item); },
+       onOpenDir: function (item) { console.log('dir', item); },
+       onAdd: function (item) { console.log('add', item); },
+       onMore: function (item) { console.log('more', item); },
+       index: 0
+     });
+     document.getElementById('grid').appendChild(c.element);
+-->

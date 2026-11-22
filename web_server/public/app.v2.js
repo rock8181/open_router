@@ -254,20 +254,29 @@ function createCard(item, index) {
 
   card.innerHTML = `
     <div class="gf-stage">
-      <div class="gf-back"></div>
+      <div class="gf-back">
+        <div class="gf-card-body">
+          <span class="type-badge">${isDir ? '폴더' : '파일'}</span>
+          <h3 class="gf-name">${escapeHtml(item.name)}</h3>
+          <div class="gf-meta">${escapeHtml(metaText)}${snippet}</div>
+        </div>
+        <button class="gf-btn-star" type="button" title="즐겨찾기" aria-label="즐겨찾기">☆</button>
+      </div>
       <div class="gf-front">
         <div class="gf-files">
           <div class="gf-sheet">
-            <div class="gf-label">
-              <span class="type-badge">${isDir ? '폴더' : '파일'}</span>
-              <h3>${escapeHtml(item.name)}</h3>
-              <div class="meta">${escapeHtml(metaText)}${snippet}</div>
-            </div>
-            <div class="gf-key">
-              <button class="gf-btn-add" type="button" title="추가" aria-label="추가">+</button>
-              <button class="gf-btn-more" type="button" title="더보기" aria-label="더보기">···</button>
+            <div class="gf-preview">
+              <div class="gf-label">
+                <span class="type-badge">${isDir ? '폴더' : '파일'}</span>
+                <h3>${escapeHtml(item.name)}</h3>
+              </div>
+              <div class="gf-meta">${escapeHtml(metaText)}${snippet}</div>
             </div>
           </div>
+        </div>
+        <div class="gf-actions">
+          <button class="gf-btn-add" type="button" title="추가" aria-label="추가">+</button>
+          <button class="gf-btn-more" type="button" title="더보기" aria-label="더보기">···</button>
         </div>
       </div>
     </div>
@@ -520,6 +529,56 @@ viewerOverlay.addEventListener('keydown', (e) => {
     closeViewer();
   }
 });
+
+/* ---- 모바일 사이드바 햄버거 토글 -------------------------------- */
+const sidebar = document.getElementById('sidebar');
+const sidebarToggle = document.querySelector('.sidebar-toggle');
+if (sidebar && sidebarToggle) {
+  sidebarToggle.addEventListener('click', () => {
+    const isOpen = sidebar.classList.toggle('is-open');
+    sidebarToggle.setAttribute('aria-expanded', String(isOpen));
+  });
+  /* 모바일에서 네비게이션 아이템 클릭 시 드로어 닫기 */
+  document.querySelectorAll('.nav-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      if (window.matchMedia('(max-width: 767px)').matches) {
+        sidebar.classList.remove('is-open');
+        sidebarToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+}
+
+/* ---- 모바일 카드 스와이프 액션 ---------------------------------- */
+const gridEl = document.getElementById('grid');
+let touchCard = null;
+let touchStartX = 0;
+let touchStartY = 0;
+gridEl.addEventListener(
+  'touchstart',
+  (e) => {
+    const card = e.target.closest('.gf-root');
+    if (!card) return;
+    touchCard = card;
+    touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
+    card.classList.remove('touch-active');
+  },
+  { passive: true }
+);
+gridEl.addEventListener(
+  'touchend',
+  (e) => {
+    if (!touchCard) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      touchCard.classList.toggle('touch-active');
+    }
+    touchCard = null;
+  },
+  { passive: true }
+);
 
 window.addEventListener('popstate', () => {
   if (viewerOverlay.style.display === 'flex') closeViewer();

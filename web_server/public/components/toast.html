@@ -1,0 +1,220 @@
+<!-- ============================================================
+   OpenRouter Study Document Viewer — Toast Notification Component
+   Path: public/components/toast.html
+   Design tokens: --color-*, --color-success, --color-error, --color-warning,
+                  --space-*, --radius-*, --shadow-*, z-index 1100
+   Accessibility: role="alert", aria-live="polite"/assertive, aria-hidden,
+                  close button, auto-dismiss timer, progress bar,
+                  Korean text, reduced-motion safe.
+   Drop-in: call Toast.init() then Toast.show({message, type, duration}).
+   ============================================================ -->
+
+<template id="tmpl-toast">
+  <div class="toast-container" aria-label="알림" aria-hidden="true">
+    <template class="toast-template">
+      <div class="toast" role="alert" aria-live="polite" aria-atomic="true">
+        <div class="toast-body"></div>
+        <button class="toast-close" type="button" aria-label="알림 닫기">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M18 3L21 6L15 12L21 18L18 21L12 15L6 21L3 18L9 12L3 6L6 3L12 9z" fill="currentColor"/></svg>
+        </button>
+        <div class="toast-progress"></div>
+      </div>
+    </template>
+  </div>
+</template>
+
+<style>
+  .toast-container {
+    position: fixed;
+    bottom: var(--space-xl);
+    right: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    z-index: 1100;
+    pointer-events: none;
+  }
+  .toast {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-m);
+    padding: var(--space-m) var(--space-l);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    background: hsl(var(--color-surface));
+    color: hsl(var(--color-text-primary));
+    box-shadow: var(--shadow-deep);
+    min-width: 260px; max-width: 420px;
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(var(--space-xl));
+    transition: opacity 250ms cubic-bezier(0.23, 1, 0.32, 1), transform 250ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.hide { opacity: 0; transform: translateY(var(--space-xs)); transition-duration: 200ms; }
+
+  .toast--info { border-color: hsl(var(--color-border-hover)); }
+  .toast--success { border-color: hsl(var(--color-success)); color: hsl(var(--color-success)); }
+  .toast--error { border-color: hsl(var(--color-error)); color: hsl(var(--color-error)); }
+  .toast--warning { border-color: hsl(var(--color-warning)); color: hsl(var(--color-warning)); }
+
+  .toast-body { font-size: 0.9375rem; font-weight: 500; line-height: 1.4; flex: 1; min-width: 0; }
+  .toast-close {
+    width: 32px; height: 32px; min-width: 32px; min-height: 32px;
+    border-radius: var(--radius-md); border: none; background: transparent;
+    color: hsl(var(--color-text-muted)); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .toast-close:hover { background: hsl(var(--color-surface-elev)); color: hsl(var(--color-text-primary)); }
+  .toast-close:focus-visible {
+    outline: 2px solid hsl(var(--color-focus));
+    outline-offset: 2px;
+  }
+  .toast-close svg { fill: currentColor; }
+  .toast-progress {
+    position: absolute; left: 0; bottom: 0; right: 0; height: 3px;
+    background: hsl(var(--color-accent) / 0.4);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    transform: scaleX(1); transform-origin: left;
+    transition: transform 200ms linear;
+  }
+  .toast.hide .toast-progress { transition: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .toast, .toast-progress { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var ESC_HTML = (function () {
+    var div = document.createElement('div');
+    return function (text) {
+      div.textContent = text;
+      return div.innerHTML;
+    };
+  })();
+
+  var TYPES = { info: 'info', success: 'success', error: 'error', warning: 'warning' };
+  var LIVE = { info: 'polite', success: 'polite', warning: 'polite', error: 'assertive' };
+
+  var Toast = {
+    container: null,
+    tpl: null,
+    timers: new Map(),
+    initialized: false,
+
+    init: function () {
+      if (this.initialized) return this;
+      var tpl = document.getElementById('tmpl-toast');
+      if (tpl && !document.getElementById('toast-container')) {
+        document.body.appendChild(document.importNode(tpl.content, true));
+      }
+      this.container = document.getElementById('toast-container') || document.querySelector('.toast-container');
+      this.tpl = this.container ? this.container.querySelector('.toast-template') : null;
+      if (this.container) this.container.removeAttribute('aria-hidden');
+      this.initialized = !!this.container;
+      return this;
+    },
+
+    show: function (opts) {
+      if (!this.initialized) this.init();
+      if (!this.container || !this.tpl) return null;
+
+      opts = opts || {};
+      var message = opts.message || '';
+      var type = TYPES[opts.type] || 'info';
+      var duration = opts.duration !== undefined ? opts.duration : 3000;
+      var persistent = opts.persistent === true;
+
+      var node = document.importNode(this.tpl.content, true).firstElementChild;
+      node.className = 'toast toast--' + type;
+      node.setAttribute('aria-live', LIVE[type]);
+
+      var body = node.querySelector('.toast-body');
+      body.textContent = message;
+
+      var closeBtn = node.querySelector('.toast-close');
+      var progress = node.querySelector('.toast-progress');
+
+      var self = this;
+      var id = String(Date.now()) + '-' + Math.floor(Math.random() * 10000);
+      node.dataset.id = id;
+
+      function dismiss() {
+        self.dismiss(id);
+      }
+
+      closeBtn.addEventListener('click', dismiss);
+      node.addEventListener('click', function (e) {
+        if (e.target === closeBtn) return;
+      });
+
+      var timer = null;
+      if (!persistent && duration > 0) {
+        progress.style.transition = 'transform ' + duration + 'ms linear';
+        timer = setTimeout(dismiss, duration);
+        this.timers.set(id, timer);
+      }
+
+      this.container.appendChild(node);
+      requestAnimationFrame(function () {
+        node.classList.add('show');
+      });
+
+      return { id: id, element: node, dismiss: dismiss };
+    },
+
+    dismiss: function (id) {
+      var timer = this.timers.get(id);
+      if (timer) { clearTimeout(timer); this.timers.delete(id); }
+      var node = this.container ? this.container.querySelector('.toast[data-id="' + id + '"]') : null;
+      if (!node) return;
+      node.classList.remove('show');
+      node.classList.add('hide');
+      node.addEventListener('transitionend', function () {
+        if (node.parentNode) node.parentNode.removeChild(node);
+      }, { once: true });
+    },
+
+    dismissAll: function () {
+      var self = this;
+      this.timers.forEach(function (timer, id) { clearTimeout(timer); });
+      this.timers.clear();
+      if (!this.container) return;
+      var nodes = this.container.querySelectorAll('.toast');
+      nodes.forEach(function (node) {
+        node.classList.remove('show');
+        node.classList.add('hide');
+      });
+    },
+
+    success: function (message, duration) { return this.show({ message: message, type: 'success', duration: duration }); },
+    error: function (message, duration) { return this.show({ message: message, type: 'error', duration: duration }); },
+    warning: function (message, duration) { return this.show({ message: message, type: 'warning', duration: duration }); },
+    info: function (message, duration) { return this.show({ message: message, type: 'info', duration: duration }); },
+
+    destroy: function () {
+      this.dismissAll();
+      this.container = null;
+      this.tpl = null;
+      this.timers.clear();
+      this.initialized = false;
+    }
+  };
+
+  window.Toast = window.Toast || Toast;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    Toast.init();
+  });
+})();
+</script>
+
+<!-- Usage:
+     Toast.show({ message: '클립보드에 복사되었습니다.', type: 'success', duration: 3000 });
+     Toast.error('문서를 불러오지 못했습니다.', 5000);
+     var t = Toast.info('처리 중...', 0); // persistent until t.dismiss()
+     t.dismiss();
+-->

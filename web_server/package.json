@@ -6,10 +6,14 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node src/server.js",
+    "lint": "eslint src",
     "changelog": "node ../changelog.js view"
   },
   "dependencies": {
     "express": "^4.19.2",
     "marked": "^12.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
   }
 }

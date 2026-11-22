@@ -1,0 +1,263 @@
+<!-- ============================================================
+   OpenRouter Study Document Viewer — Search Input with Inline Results
+   Path: public/components/search.html
+   Design tokens: --color-*, --space-*, --radius-*, --shadow-*, .text-*
+   Accessibility: role="search", aria-label, aria-controls, aria-expanded,
+                  role="listbox", role="option", aria-activedescendant,
+                  aria-live="polite", ArrowUp/Down/Enter/Escape, Korean text.
+   Drop-in: call Search.init(container, options) or mark with data-search.
+   ============================================================ -->
+
+<template id="tmpl-search">
+  <section class="sc-root" role="search" aria-label="문서 검색">
+    <label class="sc-label" for="sc-input">문서 검색</label>
+    <input class="sc-input" type="search" id="sc-input" aria-label="문서 검색" placeholder="문서 검색..." autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sc-results">
+    <button class="sc-btn" type="button" aria-label="검색 실행">검색</button>
+    <div class="sc-results" id="sc-results" role="listbox" aria-label="검색 결과" hidden></div>
+    <p class="sc-status" aria-live="polite" aria-atomic="true"></p>
+  </section>
+</template>
+
+<style>
+  .sc-root { display: flex; flex-direction: column; gap: var(--space-xs); }
+  .sc-label { display: block; font-size: 0.75rem; font-weight: 600; color: hsl(var(--color-text-secondary)); }
+  .sc-input { width: 100%; padding: 10px 16px; background: hsl(var(--color-bg)); border: 1px solid hsl(var(--color-border)); border-radius: var(--radius-md); color: hsl(var(--color-text-primary)); font-size: 0.9375rem; min-height: 44px; }
+  .sc-input:focus { outline: none; border-color: hsl(var(--color-border-hover)); }
+  .sc-input:focus-visible { outline: 2px solid hsl(var(--color-focus)); outline-offset: 2px; }
+  .sc-btn { width: 100%; margin-top: var(--space-xs); padding: 10px 16px; background: hsl(var(--color-accent)); border: none; border-radius: var(--radius-md); color: hsl(var(--color-bg)); font-weight: 600; min-height: 44px; cursor: pointer; }
+  .sc-btn:hover { background: hsl(var(--color-accent-hover)); }
+  .sc-btn:focus-visible { outline: 2px solid hsl(var(--color-focus)); outline-offset: 2px; }
+  .sc-results { position: absolute; z-index: 900; border: 1px solid hsl(var(--color-border)); border-radius: var(--radius-md); background: hsl(var(--color-surface)); box-shadow: var(--shadow-deep); max-height: 260px; overflow-y: auto; width: 100%; margin-top: var(--space-xs); }
+  .sc-root[aria-expanded="true"] .sc-results { hidden: false; display: block; }
+  .sc-option { display: flex; align-items: center; gap: var(--space-s); padding: var(--space-s) var(--space-m); font-size: 0.9375rem; color: hsl(var(--color-text-primary)); cursor: pointer; border: none; background: transparent; text-align: left; width: 100%; }
+  .sc-option:hover, .sc-option:focus { background: hsl(var(--color-surface-elev)); outline: none; }
+  .sc-option[aria-selected="true"] { background: hsl(var(--color-accent)); color: hsl(var(--color-bg)); }
+  .sc-option:focus-visible { outline: 2px solid hsl(var(--color-focus)); outline-offset: 2px; }
+  .sc-empty { padding: var(--space-m); font-size: 0.875rem; color: hsl(var(--color-text-muted)); text-align: center; }
+  .sc-kbd { font-family: var(--font-mono, monospace); font-size: 0.75rem; background: hsl(var(--color-surface-elev)); border: 1px solid hsl(var(--color-border)); border-radius: var(--radius-sm); padding: 1px 6px; margin-left: var(--space-xs); }
+  .sc-status { font-size: 0.8rem; color: hsl(var(--color-text-muted)); min-height: 1.2em; }
+  @media (prefers-reduced-motion: reduce) {
+    .sc-option { transition: none; }
+  }
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var ESC_HTML = (function () {
+    var div = document.createElement('div');
+    return function (text) {
+      div.textContent = text;
+      return div.innerHTML;
+    };
+  })();
+
+  var Search = {
+    container: null,
+    input: null,
+    btn: null,
+    results: null,
+    status: null,
+    onSearch: null,
+    onSelect: null,
+    debounceMs: 300,
+    timer: null,
+    activeIndex: -1,
+    items: [],
+    initialized: false,
+
+    init: function (container, options) {
+      options = options || {};
+      if (this.initialized && container === this.container) return this;
+      this.destroy();
+
+      this.container = typeof container === 'string' ? document.querySelector(container) : container;
+      if (!this.container) return this;
+
+      var tpl = document.getElementById('tmpl-search');
+      if (tpl && !this.container.querySelector('.sc-root')) {
+        this.container.innerHTML = '';
+        this.container.appendChild(document.importNode(tpl.content, true));
+      }
+
+      this.input = this.container.querySelector('.sc-input');
+      this.btn = this.container.querySelector('.sc-btn');
+      this.results = this.container.querySelector('.sc-results');
+      this.status = this.container.querySelector('.sc-status');
+
+      if (!this.input || !this.results) return this;
+
+      this.onSearch = options.onSearch || null;
+      this.onSelect = options.onSelect || null;
+      this.debounceMs = options.debounceMs || 300;
+
+      var self = this;
+
+      this.input.addEventListener('input', function () {
+        clearTimeout(self.timer);
+        var q = self.input.value.trim();
+        self.setExpanded(q.length > 0);
+        if (q.length === 0) { self.render([]); self.status.textContent = ''; return; }
+        self.timer = setTimeout(function () {
+          if (typeof self.onSearch === 'function') self.onSearch(q);
+        }, self.debounceMs);
+      });
+
+      this.btn.addEventListener('click', function () {
+        var q = self.input.value.trim();
+        if (q && typeof self.onSearch === 'function') self.onSearch(q);
+      });
+
+      this.input.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); self.move(1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); self.move(-1); }
+        else if (e.key === 'Enter') { e.preventDefault(); self.selectActive(); }
+        else if (e.key === 'Escape') { self.setExpanded(false); self.input.blur(); }
+      });
+
+      this.results.addEventListener('mousedown', function (e) {
+        var opt = e.target.closest('.sc-option');
+        if (opt) { e.preventDefault(); self.selectByElement(opt); }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!self.container.contains(e.target)) self.setExpanded(false);
+      });
+
+      this.initialized = true;
+      return this;
+    },
+
+    setExpanded: function (expanded) {
+      if (!this.input || !this.results) return;
+      this.input.setAttribute('aria-expanded', String(!!expanded));
+      if (expanded) { this.results.removeAttribute('hidden'); this.results.style.display = 'block'; }
+      else { this.results.setAttribute('hidden', ''); this.results.style.display = 'none'; this.activeIndex = -1; this.updateActive(); }
+    },
+
+    render: function (items) {
+      this.items = items || [];
+      this.activeIndex = -1;
+      if (!this.results) return;
+      this.results.innerHTML = '';
+      if (this.items.length === 0) {
+        var empty = document.createElement('div');
+        empty.className = 'sc-empty';
+        empty.textContent = '검색 결과가 없습니다.';
+        empty.setAttribute('aria-hidden', 'true');
+        this.results.appendChild(empty);
+        this.setExpanded(true);
+        if (this.status) this.status.textContent = '검색 결과가 없습니다.';
+        return;
+      }
+      this.items.forEach(function (it, idx) {
+        var opt = document.createElement('button');
+        opt.className = 'sc-option';
+        opt.setAttribute('role', 'option');
+        opt.setAttribute('aria-selected', 'false');
+        opt.id = 'sc-option-' + idx;
+        opt.dataset.index = idx;
+        var title = ESC_HTML(it.title || it.name || '');
+        var subtitle = it.subtitle ? ('<span style="color:hsl(var(--color-text-muted));font-size:0.85rem;margin-left:auto;">' + ESC_HTML(it.subtitle) + '</span>') : '';
+        opt.innerHTML = '<span>' + title + '</span>' + subtitle;
+        opt.addEventListener('click', function () { selfSelect(idx); });
+        this.results.appendChild(opt);
+      }, this);
+      var self = this;
+      function selfSelect(idx) { self.selectByIndex(idx); }
+      this.setExpanded(true);
+      if (this.status) this.status.textContent = this.items.length + '개 결과';
+    },
+
+    move: function (delta) {
+      if (this.items.length === 0) return;
+      this.activeIndex = (this.activeIndex + delta + this.items.length) % this.items.length;
+      this.updateActive();
+      this.scrollToActive();
+    },
+
+    updateActive: function () {
+      var opts = this.results ? this.results.querySelectorAll('[role="option"]') : [];
+      opts.forEach(function (el, idx) {
+        var active = idx === this.activeIndex;
+        el.setAttribute('aria-selected', String(active));
+        if (active) {
+          el.setAttribute('aria-current', 'true');
+          this.input.setAttribute('aria-activedescendant', el.id);
+        } else {
+          el.removeAttribute('aria-current');
+        }
+      }, this);
+      if (this.activeIndex === -1) this.input.removeAttribute('aria-activedescendant');
+    },
+
+    scrollToActive: function () {
+      var opt = this.results ? this.results.querySelector('[role="option"][aria-current="true"]') : null;
+      if (opt) opt.scrollIntoView({ block: 'nearest' });
+    },
+
+    selectActive: function () {
+      if (this.activeIndex >= 0) this.selectByIndex(this.activeIndex);
+      else if (typeof this.onSearch === 'function') this.onSearch(this.input.value.trim());
+    },
+
+    selectByIndex: function (idx) {
+      var item = this.items[idx];
+      if (!item) return;
+      this.input.value = item.title || item.name || '';
+      this.setExpanded(false);
+      if (typeof this.onSelect === 'function') this.onSelect(item);
+    },
+
+    selectByElement: function (el) {
+      var idx = Number(el.dataset.index);
+      this.selectByIndex(idx);
+    },
+
+    setStatus: function (msg) {
+      if (this.status) this.status.textContent = msg || '';
+    },
+
+    destroy: function () {
+      if (this.input) {
+        this.input.removeEventListener('input', null);
+        this.input.removeEventListener('keydown', null);
+      }
+      if (this.btn) this.btn.removeEventListener('click', null);
+      clearTimeout(this.timer);
+      this.container = null;
+      this.input = null;
+      this.btn = null;
+      this.results = null;
+      this.status = null;
+      this.onSearch = null;
+      this.onSelect = null;
+      this.timer = null;
+      this.items = [];
+      this.activeIndex = -1;
+      this.initialized = false;
+    }
+  };
+
+  window.Search = window.Search || Search;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var auto = document.querySelector('[data-search]');
+    if (auto) {
+      Search.init(auto, {});
+    }
+  });
+})();
+</script>
+
+<!-- Usage:
+     <div id="search-box" data-search></div>
+     <script>
+       Search.init('#search-box', {
+         onSearch: function (q) { /* fetch results, then Search.render(results) */ },
+         onSelect: function (item) { /* open item */ },
+         debounceMs: 300
+       });
+     </script>
+-->

@@ -1,0 +1,258 @@
+<!-- ============================================================
+   OpenRouter Study Document Viewer — Document Viewer Modal Component
+   Path: public/components/viewer.html
+   Design tokens: --color-*, --space-*, --radius-*, --shadow-*, z-index 1000/1010
+   Accessibility: role="dialog", aria-modal="true", aria-labelledby,
+                  aria-hidden, focus trap, Escape close, focus restore,
+                  Korean text, 44px touch targets.
+   Drop-in: call Viewer.init() once, then Viewer.open({title, content}) /
+             Viewer.close(). Consume Viewer.onClose callback.
+   ============================================================ -->
+
+<template id="tmpl-viewer">
+  <div class="vm-overlay" role="dialog" aria-modal="true" aria-labelledby="vm-title" aria-hidden="true">
+    <div class="vm-panel" id="vm-panel">
+      <div class="vm-header">
+        <h2 id="vm-title" class="vm-title"></h2>
+        <div class="vm-actions">
+          <button class="vm-btn vm-btn--copy" type="button" aria-label="내용 복사">복사</button>
+          <button class="vm-btn vm-btn--close" type="button" aria-label="뷰어 닫기">닫기</button>
+        </div>
+      </div>
+      <div class="vm-content" id="vm-content"></div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .vm-overlay {
+    position: fixed; inset: 0;
+    background: hsl(var(--color-bg) / 0.85);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .vm-overlay[aria-hidden="false"] {
+    display: flex;
+    opacity: 1;
+  }
+  .vm-panel {
+    flex: 1;
+    background: hsl(var(--color-surface));
+    border-left: 1px solid hsl(var(--color-border));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1010;
+    box-shadow: var(--shadow-deep);
+  }
+  @media (max-width: 767px) {
+    .vm-panel { border-left: none; border-top: 1px solid hsl(var(--color-border)); }
+  }
+  .vm-header {
+    padding: var(--space-m) var(--space-xl);
+    border-bottom: 1px solid hsl(var(--color-border));
+    background: hsl(var(--color-surface-elev));
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .vm-title { color: hsl(var(--color-text-primary)); font-size: 1.25rem; margin: 0; }
+  .vm-actions { display: flex; gap: var(--space-s); }
+  .vm-btn {
+    padding: 10px 16px; border-radius: var(--radius-sm);
+    border: none; cursor: pointer; font-size: 0.875rem; font-weight: 500;
+    min-width: 44px; min-height: 44px;
+  }
+  .vm-btn--copy {
+    background: hsl(var(--color-surface-elev));
+    color: hsl(var(--color-text-primary));
+    border: 1px solid hsl(var(--color-border));
+  }
+  .vm-btn--copy:hover { background: hsl(var(--color-border)); }
+  .vm-btn--close {
+    background: hsl(var(--color-error));
+    color: hsl(var(--color-bg));
+    border: none;
+  }
+  .vm-btn--close:hover { opacity: 0.9; }
+  .vm-btn:focus-visible {
+    outline: 2px solid hsl(var(--color-focus));
+    outline-offset: 2px;
+  }
+  .vm-content {
+    flex: 1; overflow-y: auto; padding: var(--space-xl);
+    line-height: 1.7; max-width: 72ch;
+    color: hsl(var(--color-text-primary));
+  }
+  .vm-content h1, .vm-content h2, .vm-content h3 {
+    color: hsl(var(--color-accent)); margin-top: var(--space-l); margin-bottom: var(--space-m);
+  }
+  .vm-content p { margin-bottom: var(--space-m); }
+  .vm-content pre {
+    background: hsl(var(--color-bg));
+    border: 1px solid hsl(var(--color-border));
+    border-radius: var(--radius-md);
+    padding: var(--space-m);
+    overflow-x: auto;
+    margin-bottom: var(--space-m);
+  }
+  .vm-content code {
+    background: hsl(var(--color-surface-elev));
+    padding: 2px 6px; border-radius: var(--radius-sm);
+    font-size: 0.875rem; color: hsl(var(--color-text-primary));
+  }
+  .vm-content a { color: hsl(var(--color-accent)); text-decoration: underline; }
+  @media (prefers-reduced-motion: reduce) {
+    .vm-overlay { transition: none !important; }
+  }
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var Viewer = {
+    overlay: null,
+    panel: null,
+    titleEl: null,
+    contentEl: null,
+    closeBtn: null,
+    copyBtn: null,
+    trap: null,
+    lastFocused: null,
+    onClose: null,
+    initialized: false,
+
+    focusables: 'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])',
+
+    init: function () {
+      if (this.initialized) return this;
+      var tpl = document.getElementById('tmpl-viewer');
+      if (tpl && !document.getElementById('vm-overlay')) {
+        document.body.appendChild(document.importNode(tpl.content, true));
+      }
+      this.overlay = document.getElementById('vm-overlay') || document.querySelector('.vm-overlay') || document.getElementById('viewerOverlay');
+      this.panel = document.getElementById('vm-panel') || this.overlay.querySelector('.vm-panel');
+      this.titleEl = document.getElementById('vm-title');
+      this.contentEl = document.getElementById('vm-content');
+      this.closeBtn = document.getElementById('vm-close') || this.overlay.querySelector('.vm-btn--close');
+      this.copyBtn = document.getElementById('vm-copy') || this.overlay.querySelector('.vm-btn--copy');
+
+      if (!this.overlay) return this;
+
+      var self = this;
+      function trap() {
+        var els = self.overlay.querySelectorAll(self.focusables);
+        if (els.length === 0) return;
+        var first = els[0];
+        var last = els[els.length - 1];
+        self.trap = function (e) {
+          if (e.key !== 'Tab') return;
+          if (e.shiftKey) {
+            if (document.activeElement === first || document.activeElement === self.overlay) {
+              e.preventDefault(); last.focus();
+            }
+          } else {
+            if (document.activeElement === last || document.activeElement === self.overlay) {
+              e.preventDefault(); first.focus();
+            }
+          }
+        };
+        self.overlay.addEventListener('keydown', self.trap);
+        first.focus();
+      }
+      function untrap() {
+        if (self.trap) {
+          self.overlay.removeEventListener('keydown', self.trap);
+          self.trap = null;
+        }
+      }
+
+      new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+          if (m.attributeName === 'aria-hidden') {
+            if (self.overlay.getAttribute('aria-hidden') === 'false') trap();
+            else untrap();
+          }
+        });
+      }).observe(self.overlay, { attributes: true });
+
+      this.closeBtn.addEventListener('click', function () { self.close(); });
+      this.copyBtn.addEventListener('click', function () {
+        var text = self.contentEl.textContent || '';
+        navigator.clipboard.writeText(text).then(function () {
+          var original = self.copyBtn.textContent;
+          self.copyBtn.textContent = '복사됨';
+          self.copyBtn.setAttribute('aria-checked', 'true');
+          setTimeout(function () {
+            self.copyBtn.textContent = original;
+            self.copyBtn.removeAttribute('aria-checked');
+          }, 1500);
+        }, function () {
+          if (typeof self.onCopyError === 'function') self.onCopyError();
+        });
+      });
+      this.overlay.addEventListener('click', function (e) {
+        if (e.target === self.overlay) self.close();
+      });
+      this.overlay.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') self.close();
+      });
+
+      this.initialized = true;
+      return this;
+    },
+
+    open: function (opts) {
+      opts = opts || {};
+      this.init();
+      if (!this.overlay) return;
+      this.lastFocused = document.activeElement;
+      if (this.titleEl) this.titleEl.textContent = opts.title || '';
+      if (this.contentEl) this.contentEl.textContent = opts.content || '';
+      this.overlay.setAttribute('aria-hidden', 'false');
+      if (this.closeBtn) this.closeBtn.focus();
+      if (typeof opts.onOpen === 'function') opts.onOpen();
+    },
+
+    close: function () {
+      if (!this.overlay) return;
+      if (this.trap) {
+        this.overlay.removeEventListener('keydown', this.trap);
+        this.trap = null;
+      }
+      this.overlay.setAttribute('aria-hidden', 'true');
+      if (this.contentEl) this.contentEl.textContent = '';
+      if (this.titleEl) this.titleEl.textContent = '';
+      if (this.lastFocused) { this.lastFocused.focus(); this.lastFocused = null; }
+      if (typeof this.onClose === 'function') this.onClose();
+    },
+
+    destroy: function () {
+      this.close();
+      this.overlay = null;
+      this.panel = null;
+      this.titleEl = null;
+      this.contentEl = null;
+      this.closeBtn = null;
+      this.copyBtn = null;
+      this.trap = null;
+      this.lastFocused = null;
+      this.initialized = false;
+    }
+  };
+
+  window.Viewer = window.Viewer || Viewer;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    Viewer.init();
+  });
+})();
+</script>
+
+<!-- Usage:
+     Viewer.open({ title: '문서 제목', content: '본문 내용...' });
+     Viewer.onClose = function () { console.log('closed'); };
+     Viewer.onCopyError = function () { alert('복사 실패'); };
+-->

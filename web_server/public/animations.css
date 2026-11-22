@@ -1,0 +1,268 @@
+/* ============================================================
+   OpenRouter Study Document Viewer — 애니메이션 스펙
+   CSS 키프레임 및 모션 유틸리티
+   ============================================================ */
+
+/* ---- 0. 모션 설계 토큰 ---------------------------------------- */
+/* 입장 애니메이션은 호버보다 느리게(컨텍스트Aware 타이밍) */
+:root {
+  /* 지속시간 (ms) */
+  --anim-duration-fast: 150ms;     /* 호버 효과 */
+  --anim-duration-normal: 200ms;   /* 토스트, 다이얼로그, 즐겨찾기 */
+  --anim-duration-slow: 250ms;     /* 카드 입장, 드래그앤드롭 */
+  --anim-duration-slower: 300ms;   /* 3D 플립 열기, 테마 토글 */
+  --anim-duration-slowest: 350ms;  /* 3D 플립 닫기 */
+
+  /* 이징 */
+  --ease-entrance: cubic-bezier(0.23, 1, 0.32, 1); /* 카드 입장 */
+  --ease-hinge: cubic-bezier(0.45, 0, 0.55, 1);    /* 힌지(플립) */
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1); /* 스타 채움, 시트 팬아웃 */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);     /* 일반 전환 */
+
+  /* 폴더 내 파일 시트 순차 지연 (파일당 40ms) */
+  --sheet-fan-delay: 40ms;
+}
+
+/* prefers-reduced-motion: 모든 애니메이션/트랜지션 비활성화 */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --anim-duration-fast: 0.01ms;
+    --anim-duration-normal: 0.01ms;
+    --anim-duration-slow: 0.01ms;
+    --anim-duration-slower: 0.01ms;
+    --anim-duration-slowest: 0.01ms;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* will-change는 애니메이션 대상 요소에만 아끼지 말고 사용 금지(스파게티 방지) */
+/* 실제로 움직일 요소에만 클래스로 부여 */
+.will-change-transform { will-change: transform; }
+.will-change-opacity { will-change: opacity; }
+.will-change-transform-opacity { will-change: transform, opacity; }
+
+/* ---- 1. 카드 입장: 순차 페이드인 + 슬라이드업 (200-300ms) ------ */
+@keyframes cardEnter {
+  0% { opacity: 0; transform: translateY(24px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.card-enter {
+  animation: cardEnter var(--anim-duration-slow) var(--ease-entrance) forwards;
+  opacity: 0;
+}
+
+/* ---- 2. 카드 열기/닫기: 3D 플립 (300-350ms, 힌지 이징) ---------- */
+.gf-stage {
+  perspective: 1000px;
+}
+.gf-front,
+.gf-back {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* 열기: 앞면이 뒤로 회전하며 뒷면이 앞으로 */
+.gf-root.is-flipping .gf-front {
+  animation: flipOpen var(--anim-duration-slower) var(--ease-hinge) forwards;
+  z-index: 2;
+}
+.gf-root.is-flipping .gf-back {
+  animation: flipOpenBack var(--anim-duration-slower) var(--ease-hinge) forwards;
+  z-index: 1;
+}
+
+/* 닫기: 방향 반전 */
+.gf-root.is-flipping.close .gf-front {
+  animation-name: flipClose;
+}
+.gf-root.is-flipping.close .gf-back {
+  animation-name: flipCloseBack;
+}
+
+@keyframes flipOpen {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(-170deg); }
+}
+@keyframes flipOpenBack {
+  0% { transform: rotateY(170deg); }
+  100% { transform: rotateY(0deg); }
+}
+@keyframes flipClose {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(170deg); }
+}
+@keyframes flipCloseBack {
+  0% { transform: rotateY(-170deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+/* ---- 3. 호버 효과: 미묘한 리프트 + 섀도우 (150-200ms) ----------- */
+/* style.css의 .gf-root:hover 트랜지션과 병행. 의도적 단일 모션 요소. */
+
+/* ---- 4. 파일 시트 팬아웃: 폴더 열릴 때 파일 부채꼴 (40ms 순차 지연) */
+@keyframes sheetFanIn {
+  0% { opacity: 0; transform: scale(0.92) translateX(0) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateX(0) translateY(0); }
+}
+@keyframes sheetFanOut {
+  0% { opacity: 1; transform: scale(1) translateX(0); }
+  100% { opacity: 0; transform: scale(0.94) translateX(-8px); }
+}
+.sheet-fan-in {
+  animation: sheetFanIn var(--anim-duration-normal) var(--ease-bounce) forwards;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.sheet-fan-out {
+  animation: sheetFanOut var(--anim-duration-normal) var(--ease-smooth) forwards;
+  will-change: transform, opacity;
+}
+
+/* ---- 5. 토스트 애니메이션: 오른쪽 하단 슬라이드인 (200ms) ---------- */
+@keyframes toastSlideIn {
+  0% { opacity: 0; transform: translateX(120%) translateY(20px); }
+  100% { opacity: 1; transform: translateX(0) translateY(0); }
+}
+@keyframes toastSlideOut {
+  0% { opacity: 1; transform: translateX(0) translateY(0); }
+  100% { opacity: 0; transform: translateX(120%) translateY(20px); }
+}
+.toast-enter {
+  animation: toastSlideIn var(--anim-duration-normal) var(--ease-entrance) forwards;
+  will-change: transform, opacity;
+}
+.toast-exit {
+  animation: toastSlideOut var(--anim-duration-normal) var(--ease-smooth) forwards;
+  will-change: transform, opacity;
+}
+
+/* 토스트 고정 위치(오른쪽 하단) */
+.toast-container {
+  position: fixed;
+  inset-inline-end: 24px;
+  inset-block-end: 24px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: hsl(var(--color-surface));
+  border: 1px solid hsl(var(--color-border));
+  color: hsl(var(--color-text-primary));
+  box-shadow: 0 8px 24px hsl(var(--color-text-primary) / 0.15);
+  min-width: 200px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---- 6. 다이얼로그 애니메이션: 스케일 + 페이드 (200ms) ------------ */
+@keyframes dialogScaleFadeIn {
+  0% { opacity: 0; transform: scale(0.94) translateY(14px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes dialogScaleFadeOut {
+  0% { opacity: 1; transform: scale(1) translateY(0); }
+  100% { opacity: 0; transform: scale(0.94) translateY(14px); }
+}
+.dialog-enter {
+  animation: dialogScaleFadeIn var(--anim-duration-normal) var(--ease-smooth) forwards;
+  will-change: transform, opacity;
+}
+.dialog-exit {
+  animation: dialogScaleFadeOut var(--anim-duration-normal) var(--ease-smooth) forwards;
+  will-change: transform, opacity;
+}
+
+/* ---- 7. 드래그앤드롭 시각: 리프트 + 섀도우 + 커서 추종 ---------- */
+.is-dragging {
+  position: fixed;
+  z-index: 3000;
+  opacity: 0.92;
+  cursor: grabbing;
+  will-change: transform;
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 32px hsl(var(--color-text-primary) / 0.2);
+  pointer-events: none;
+}
+.drag-over {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px hsl(var(--color-accent) / 0.2);
+  border-color: hsl(var(--color-accent));
+  transition: transform 150ms var(--ease-smooth), box-shadow 150ms var(--ease-smooth);
+}
+
+/* ---- 8. 정렬 애니메이션: 카드 재정렬 시 부드러운 전환 ------------ */
+.grid-sort {
+  transition: transform var(--anim-duration-slow) var(--ease-smooth),
+              opacity var(--anim-duration-normal) ease;
+  will-change: transform, opacity;
+}
+.grid-sort.exiting {
+  opacity: 0;
+  transform: scale(0.96) translateY(-12px);
+  pointer-events: none;
+}
+
+/* ---- 9. 즐겨찾기 토글: 스타 채움 애니메이션 (200ms) -------------- */
+@keyframes starFill {
+  0% { transform: scale(1) rotate(0deg); color: hsl(var(--color-text-muted)); }
+  50% { transform: scale(1.3) rotate(14deg); color: hsl(var(--color-warning)); }
+  100% { transform: scale(1) rotate(0deg); color: hsl(var(--color-warning)); }
+}
+.btn-favorite.is-active {
+  color: hsl(var(--color-warning));
+}
+.btn-favorite.toggling {
+  animation: starFill var(--anim-duration-normal) var(--ease-bounce) forwards;
+  will-change: transform, color;
+}
+
+/* ---- 10. 테마 토글: 태양/달 회전 (300ms) ------------------------- */
+@keyframes themeRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.btn-theme.toggling {
+  animation: themeRotate var(--anim-duration-slower) var(--ease-smooth) forwards;
+  will-change: transform;
+}
+
+/* ---- 모션 감소 시 클래스 기반 애니메이션 강제 비활성화 ----------- */
+@media (prefers-reduced-motion: reduce) {
+  .card-enter,
+  .is-flipping .gf-front,
+  .is-flipping .gf-back,
+  .sheet-fan-in,
+  .sheet-fan-out,
+  .toast-enter,
+  .toast-exit,
+  .dialog-enter,
+  .dialog-exit,
+  .btn-favorite.toggling,
+  .btn-theme.toggling {
+    animation: none !important;
+  }
+  .is-dragging {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .grid-sort {
+    transition: none !important;
+  }
+}
